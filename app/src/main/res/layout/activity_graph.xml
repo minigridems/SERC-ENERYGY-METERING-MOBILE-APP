@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fancy="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="edu.strathmore.serc.sercopenenergymonitorv3.GraphActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/graph_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="16dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="Heading"/>
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/graph"
+            android:layout_width="match_parent"
+            android:layout_height="550dp"
+            android:layout_marginBottom="16dp">
+
+
+        </com.github.mikephil.charting.charts.LineChart>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/graphButtonsBackground"
+            android:orientation="horizontal"
+            android:paddingTop="16dp">
+
+            <LinearLayout
+                style="@style/BtnLinearLayout">
+
+                <mehdi.sakout.fancybuttons.FancyButton
+                    android:id="@+id/btn_set_start_date"
+                    style="@style/TimeDatePicker"
+
+                    fancy:fb_borderColor="#FFFFFF"
+                    fancy:fb_borderWidth="1dp"
+                    fancy:fb_defaultColor="@color/colorPrimary"
+                    fancy:fb_focusColor="#9bd823"
+                    fancy:fb_radius="10dp"
+                    fancy:fb_text="Set Start date"
+
+
+                    />
+
+                <TextView
+                    android:id="@+id/textview_set_start_date"
+                    style="@style/TimeDatePickerText"
+                    tools:text="Set End date"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/BtnLinearLayout"
+                >
+
+                <mehdi.sakout.fancybuttons.FancyButton
+                    android:id="@+id/btn_set_start_time"
+                    style="@style/TimeDatePicker"
+
+                    fancy:fb_borderColor="#FFFFFF"
+                    fancy:fb_borderWidth="1dp"
+                    fancy:fb_defaultColor="@color/colorPrimary"
+                    fancy:fb_focusColor="#9bd823"
+                    fancy:fb_radius="10dp"
+                    fancy:fb_text="Set Start Time"
+                    />
+                <TextView
+                    android:id="@+id/textview_set_start_time"
+                    style="@style/TimeDatePickerText"
+                    tools:text="Set End time"
+                    />
+
+            </LinearLayout>
+
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/graphButtonsBackground"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                style="@style/BtnLinearLayout">
+
+                <mehdi.sakout.fancybuttons.FancyButton
+                    android:id="@+id/btn_set_end_date"
+                    style="@style/TimeDatePicker"
+
+                    fancy:fb_borderColor="#FFFFFF"
+                    fancy:fb_borderWidth="1dp"
+                    fancy:fb_defaultColor="@color/colorPrimary"
+                    fancy:fb_focusColor="#9bd823"
+                    fancy:fb_radius="10dp"
+                    fancy:fb_text="Set End Date"
+                    />
+                <TextView
+                    android:id="@+id/textview_set_end_date"
+                    style="@style/TimeDatePickerText"
+                    tools:text="Set End date"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/BtnLinearLayout">
+
+                <mehdi.sakout.fancybuttons.FancyButton
+                    android:id="@+id/btn_set_end_time"
+                    style="@style/TimeDatePicker"
+                    fancy:fb_borderColor="#FFFFFF"
+
+                    fancy:fb_borderWidth="1dp"
+                    fancy:fb_defaultColor="@color/colorPrimary"
+                    fancy:fb_focusColor="#9bd823"
+                    fancy:fb_radius="10dp"
+                    fancy:fb_text="Set End Time"
+
+                    />
+                <TextView
+                    android:id="@+id/textview_set_end_time"
+                    style="@style/TimeDatePickerText"
+                    tools:text="Set End date"
+                    />
+
+            </LinearLayout>
+
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/graphButtonsBackground"
+            android:orientation="vertical">
+
+            <mehdi.sakout.fancybuttons.FancyButton
+                android:id="@+id/btn_draw_graph"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_margin="16dp"
+                fancy:fb_borderColor="#FFFFFF"
+                fancy:fb_borderWidth="1dp"
+                fancy:fb_defaultColor="@color/colorPrimary"
+                fancy:fb_focusColor="#9bd823"
+                fancy:fb_radius="10dp"
+
+                fancy:fb_text="Draw Graph"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
