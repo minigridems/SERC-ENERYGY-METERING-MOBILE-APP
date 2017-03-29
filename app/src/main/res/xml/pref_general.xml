@@ -39,7 +39,7 @@
         android:entries="@array/pref_stations_list_titles"
         android:entryValues="@array/pref_station_list_values"
         android:key="stations_multi_list"
-        android:summary="Chooses the Recording Stations to be displayed in the main screen"
+        android:summary="@string/pref_multi_list_summary"
         android:title="@string/pref_list_of_stations"/>
 
 

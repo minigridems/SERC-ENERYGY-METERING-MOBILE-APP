@@ -64,38 +64,51 @@ public class MainActivity extends AppCompatActivity {
          * Here the shared preferences are pulled and refreshed to include all the stations that have been pulled
          * from calling CMSApi. This stored in a string set
          */
-        Log.i("SERC Log:", "Pulling preferences");
+        Log.i("SERC Log", "Pulling preferences");
         SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
         Set<String> recordingStationsInSettings = appSettings.getStringSet("stations_multi_list", Collections.<String>emptySet());
         Set<String> chosenRecordingStations = new HashSet<>();
+        Set<String> chosenRecordingStationsID = new HashSet<>();
         /**
          * Check for the first time the app is run.
          * Checks that there is something in the list and displays it in the logs
          */
-        if (!recordingStationsInSettings.isEmpty()) {
+        Log.i("SERC Log", "Checking if SharedPrefs are empty:" + String.valueOf(recordingStations.isEmpty()));
+        if (recordingStationsInSettings.isEmpty()) {
             // Logging entries in the list
             Log.i("SERC Log:", "stations_multi_list size: "+ String.valueOf(recordingStationsInSettings.size()));
             for (int i=0; i<recordingStationsInSettings.size(); i++){
                 Log.i("SERC Log:", "stations_multi_list " + String.valueOf(i) + ": "+ String.valueOf(recordingStationsInSettings.toArray()[i]));
             }
+
+            // Creates an array list of names of the stations in the form "TAG - NAME"
+            Log.i("SERC Log:", "Building List of Recording Station Names");
+            ArrayList<String> recordingStationNames = new ArrayList<>();
+            ArrayList<String> recordingStationIDs = new ArrayList<>();
+            for (int i=0; i<recordingStations.size(); i++){
+                recordingStationNames.add(recordingStations.get(i).getStationTag() + " - " + recordingStations.get(i).getStationName());
+                recordingStationIDs.add(String.valueOf(recordingStations.get(i).getStationID()));
+            }
+            // Adds these names to a new Set chosenRecordingStationsID
+            Log.i("SERC Log:", "Adding the names to settings");
+            for (int i=0; i<recordingStationIDs.size(); i++) {
+                String id = recordingStationIDs.get(i);
+                chosenRecordingStationsID.add(id);
+            }
+            // Adds these IDs to a new Set chosenRecordingStations
+            Log.i("SERC Log:", "Adding the names to settings");
+            for (int i=0; i<recordingStationNames.size(); i++) {
+                String name = recordingStationNames.get(i);
+                chosenRecordingStations.add(name);
+            }
+            Log.i("SERC Log:", "Saving settings");
+            SharedPreferences.Editor editor = appSettings.edit();
+            editor.putStringSet("stations_multi_list", chosenRecordingStations);
+            editor.putStringSet("stations_multi_list_ID", chosenRecordingStationsID);
+            editor.apply();
         }
 
-        // Creates an array list of names of the stations in the form "TAG - NAME"
-        Log.i("SERC Log:", "Building List of Recording Station Names");
-        ArrayList<String> recordingStationNames = new ArrayList<>();
-        for (int i=0; i<recordingStations.size(); i++){
-            recordingStationNames.add(recordingStations.get(i).getStationTag() + " - " + recordingStations.get(i).getStationName());
-        }
-        // Adds these names to a new Set chosenRecordingStations
-        Log.i("SERC Log:", "Adding the names to settings");
-        for (int i=0; i<recordingStationNames.size(); i++) {
-            String name = recordingStationNames.get(i);
-            chosenRecordingStations.add(name);
-        }
-        Log.i("SERC Log:", "Saving settings");
-        SharedPreferences.Editor editor = appSettings.edit();
-        editor.putStringSet("stations_multi_list", chosenRecordingStations);
-        editor.apply();
+
 
 
 

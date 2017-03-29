@@ -85,9 +85,10 @@
 
 
     <string name="swipe_up_to_refresh">Swipe up to refresh</string>
-    <string name="pref_list_of_stations">List of Stations to Display</string>
+    <string name="pref_list_of_stations">Stations to Display</string>
     <string name="graph_title">Graph</string>
     <string name="draw_graph">Draw Graph</string>
+    <string name="pref_multi_list_summary">Select the Recording Stations to be displayed in the main screen</string>
 
 
     <!--Custom List for Settings -->

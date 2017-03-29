@@ -68,7 +68,6 @@ public class GraphActivity extends AppCompatActivity {
     String stationName = "";
     String stationTag = "";
     String link;
-    //String examplelink = "https://serc.strathmore.edu/emoncms/feed/data.json?id=15&start=1489414500000&end=1490020200000&interval=900&skipmissing=1&limitinterval=1&apikey=36ec19e2a135f22b50883d555eea2114";
     String result = "[]";
     // Needed for calendar dialog
     FancyButton btnStartDate, btnEndDate;
@@ -126,6 +125,7 @@ public class GraphActivity extends AppCompatActivity {
         // To create the date picker dialog
         showCalendarDialog();
 
+
         // Setting today's date as default values when the dialog shows
         hour_start = cal.get(Calendar.HOUR_OF_DAY);
         hour_end = cal.get(Calendar.HOUR_OF_DAY);
@@ -133,6 +133,7 @@ public class GraphActivity extends AppCompatActivity {
         minute_end = cal.get(Calendar.MINUTE);
         // To create the time picker dialog
         showTimeDialog();
+
 
         // Getting the current time from the system clock in milliseconds
         Long tsLong = System.currentTimeMillis();
@@ -169,7 +170,7 @@ public class GraphActivity extends AppCompatActivity {
                     Toast.makeText(GraphActivity.this, "The Start Time or Date is after the End Time or Date", Toast.LENGTH_LONG).show();
                 }
                 else{
-
+                    setLink();
                     drawGraph(link);
 
                 }
@@ -182,6 +183,7 @@ public class GraphActivity extends AppCompatActivity {
         LineChart lineChart = (LineChart) findViewById(R.id.graph);
 
         try {
+
             // CmsApiCall returns the JSON in form of a continuous string
             AsyncTask localCmiCall = new CmsApi().execute(graphLink);
 
@@ -190,7 +192,7 @@ public class GraphActivity extends AppCompatActivity {
             // For this call, the JSON consists of one large parent JSON Array with multiple children
             // arrays each containing 2 data points. The time at position 0 and the power reading at
             // position 1.
-            Log.i("Result in JSON", result);
+            Log.i("SERC Log", "Result in JSON: " + result);
             JSONArray parentJSON = new JSONArray(result);
             JSONArray childJSONArray;
 
@@ -201,7 +203,7 @@ public class GraphActivity extends AppCompatActivity {
 
             // First checks if any data is being sent (i.e. it is not an empty array)
             if(!parentJSON.isNull(0)) {
-                Log.i("Not null array", "Response from API Call not null");
+                Log.i("SERC Log", "Not null array: Response from API Call not null");
                 for (int i = 0; i < parentJSON.length(); i++) {
                     childJSONArray = parentJSON.getJSONArray(i);
                     for (int j = 0; j < childJSONArray.length(); j++) {
@@ -216,23 +218,24 @@ public class GraphActivity extends AppCompatActivity {
                     }
                 }
 
-                Log.i("Adding to entries", "Changing the elements of the array into Entry objects");
+                Log.i("SERC Log", "Adding to entries: Changing the elements of the array into Entry objects");
                 for (int i = 0; i < xAxis.size(); i++) {
                     entries.add(new Entry((float) xAxis.get(i), yAxis.get(i).floatValue()));
                 }
 
-                Log.i("Graph", "Drawing graph");
+                Log.i("SERC Log", "Drawing graph");
+                lineChart.invalidate();
 
+                Log.i("SERC Log", "Styling xAxis");
                 XAxis styledXAxis = lineChart.getXAxis();
                 styledXAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
                 styledXAxis.setLabelRotationAngle(90f);
 
-
-
+                Log.i("SERC Log", "Configuring the Data Set");
                 LineDataSet dataSet = new LineDataSet(entries, "Power");
                 dataSet.setColor(Color.RED);
                 dataSet.setDrawCircles(false);
-                //dataSet.setValueFormatter(new DayAxisValueFormatter(lineChart));
+
                 LineData lineData = new LineData(dataSet);
                 styledXAxis.setValueFormatter(new DayAxisValueFormatter(lineChart));
 
@@ -248,14 +251,9 @@ public class GraphActivity extends AppCompatActivity {
             }
             lineChart.invalidate(); //refresh
 
-        } /*catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }*/ catch (JSONException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
-
 
     }
 
@@ -279,6 +277,7 @@ public class GraphActivity extends AppCompatActivity {
                         Calendar chosenStart = Calendar.getInstance();
                         chosenStart.set(year_start, month_start, day_start, hour_start, minute_start);
                         startTime = String.valueOf(chosenStart.getTimeInMillis());
+                        setLink();
                         Log.i("Chosen UNIX Start Date", startTime);
 
                         Log.i("Start and End Date", "Start: " + day_start+"/"+(month_start+1)+"/"+year_start + " End:" + day_end+"/"+(month_end+1)+"/"+year_end);
@@ -300,6 +299,7 @@ public class GraphActivity extends AppCompatActivity {
                         Calendar chosenEnd = Calendar.getInstance();
                         chosenEnd.set(year_end, month_end, day_end, hour_end, minute_end);
                         endTime = String.valueOf(chosenEnd.getTimeInMillis());
+                        setLink();
                         Log.i("Chosen UNIX End Date", endTime);
 
                         Log.i("Start and End Date", "Start: " + day_start+"/"+(month_start+1)+"/"+year_start + " End:" + day_end+"/"+(month_end+1)+"/"+year_end);
@@ -326,7 +326,9 @@ public class GraphActivity extends AppCompatActivity {
                 Calendar chosenStart = Calendar.getInstance();
                 chosenStart.set(year_start, month_start, day_start, hour_start, minute_start);
                 startTime = String.valueOf(chosenStart.getTimeInMillis());
+                setLink();
                 Log.i("Chosen Start Time", startTime);
+                Log.i("Start and End Time", "Start: " + hour_start+":"+minute_start+"hrs" + " End:" + hour_end+":"+minute_end+"hrs");
             }
         });
 
@@ -339,7 +341,9 @@ public class GraphActivity extends AppCompatActivity {
                 Calendar chosenEnd = Calendar.getInstance();
                 chosenEnd.set(year_end, month_end, day_end, hour_end, minute_end);
                 endTime = String.valueOf(chosenEnd.getTimeInMillis());
+                setLink();
                 Log.i("Chosen End Time", endTime);
+                Log.i("Start and End Time", "Start: " + hour_start+":"+minute_start+"hrs" + " End:" + hour_end+":"+minute_end+"hrs");
             }
         });
     }
@@ -388,7 +392,7 @@ public class GraphActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String... params) {
-            result = "";
+            //result = "";
             try {
                 String urlstring = params[0];
                 Log.i("SERC Log:", "HTTP Connecting: " + urlstring);
@@ -426,7 +430,7 @@ public class GraphActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             //super.onPostExecute(s);
-            Log.i("SERC Log: Dialog exists", String.valueOf(dialog.isShowing()));
+            Log.i("SERC Log", "Loading Dialog onPostExecute exists: "+String.valueOf(dialog.isShowing()));
             if(dialog.isShowing()) {
                 dialog.dismiss();
             }
