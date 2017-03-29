@@ -196,27 +196,25 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             final MultiSelectListPreference stationMultiSelect = (MultiSelectListPreference) findPreference("stations_multi_list");
             final SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(getActivity());
             final Set<String> recordingStationsSet = appSettings.getStringSet("stations_multi_list", Collections.<String>emptySet());
-            final Set<String> recordingStationsSetID = appSettings.getStringSet("stations_multi_list_ID", Collections.<String>emptySet());
+
 
             Log.i("SERC Log", "MultiSelectPreference Entry Value length: "+ String.valueOf(stationMultiSelect.getEntryValues().length));
             Log.i("SERC Log", "SharedPreferrences Names Set length: "+ String.valueOf(recordingStationsSet.size()));
-            Log.i("SERC Log", "SharedPreferrences ID Set length: "+ String.valueOf(recordingStationsSetID.size()));
+
 
             // Sizes of the String sets
             int recordingStationsSetSize = recordingStationsSet.size();
-            int recordingStationsSetIDSize = recordingStationsSetID.size();
+
 
             // Logging entries in the list
             for (int i=0; i<recordingStationsSetSize; i++){
                 Log.i("SERC Log:", "stations_multi_list_ID " + String.valueOf(i) + ": "+ String.valueOf(recordingStationsSet.toArray()[i]));
             }
-            for (int i=0; i<recordingStationsSetIDSize; i++){
-                Log.i("SERC Log:", "stations_multi_list " + String.valueOf(i) + ": "+ String.valueOf(recordingStationsSetID.toArray()[i]));
-            }
+
 
             // Converting the String Sets to String Arrays
             String[] nameArray = recordingStationsSet.toArray(new String[recordingStationsSetSize]);
-            String[] idArray = recordingStationsSetID.toArray(new String[recordingStationsSetIDSize]);
+
 
             // Setting stations_multi_list to the entries and stations_multi_list_ID to the values
             stationMultiSelect.setEntries(nameArray);
@@ -231,6 +229,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                     Set<String> newValueStringSet = (Set<String>) newValue;
                     int newValueStringSetSize = newValueStringSet.size();
                     String [] newValueStringArray = newValueStringSet.toArray(new String[newValueStringSetSize]);
+
                     MultiSelectListPreference mPreference = (MultiSelectListPreference) preference;
                     mPreference.setEntryValues(newValueStringArray);
 

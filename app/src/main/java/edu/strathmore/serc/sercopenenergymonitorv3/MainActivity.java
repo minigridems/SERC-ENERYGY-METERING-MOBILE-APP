@@ -68,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
         Set<String> recordingStationsInSettings = appSettings.getStringSet("stations_multi_list", Collections.<String>emptySet());
         Set<String> chosenRecordingStations = new HashSet<>();
-        Set<String> chosenRecordingStationsID = new HashSet<>();
         /**
          * Check for the first time the app is run.
          * Checks that there is something in the list and displays it in the logs
@@ -84,18 +83,10 @@ public class MainActivity extends AppCompatActivity {
             // Creates an array list of names of the stations in the form "TAG - NAME"
             Log.i("SERC Log:", "Building List of Recording Station Names");
             ArrayList<String> recordingStationNames = new ArrayList<>();
-            ArrayList<String> recordingStationIDs = new ArrayList<>();
             for (int i=0; i<recordingStations.size(); i++){
                 recordingStationNames.add(recordingStations.get(i).getStationTag() + " - " + recordingStations.get(i).getStationName());
-                recordingStationIDs.add(String.valueOf(recordingStations.get(i).getStationID()));
             }
-            // Adds these names to a new Set chosenRecordingStationsID
-            Log.i("SERC Log:", "Adding the names to settings");
-            for (int i=0; i<recordingStationIDs.size(); i++) {
-                String id = recordingStationIDs.get(i);
-                chosenRecordingStationsID.add(id);
-            }
-            // Adds these IDs to a new Set chosenRecordingStations
+            // Adds these names to a new Set chosenRecordingStations
             Log.i("SERC Log:", "Adding the names to settings");
             for (int i=0; i<recordingStationNames.size(); i++) {
                 String name = recordingStationNames.get(i);
@@ -104,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
             Log.i("SERC Log:", "Saving settings");
             SharedPreferences.Editor editor = appSettings.edit();
             editor.putStringSet("stations_multi_list", chosenRecordingStations);
-            editor.putStringSet("stations_multi_list_ID", chosenRecordingStationsID);
             editor.apply();
         }
 
