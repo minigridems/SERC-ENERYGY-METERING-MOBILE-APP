@@ -23,6 +23,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -174,6 +175,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class GeneralPreferenceFragment extends PreferenceFragment {
+        // Declaring some global variables to be used in the onCreate method
+        MultiSelectListPreference stationMultiSelect;
+        SharedPreferences appSettings;
+        Set<String> recordingStationsSet;
+        Set<String> recordingStationsFullSet;
+
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -189,57 +197,97 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
 
             /**
-             * Gets the MultiSelectListPreference and adds the String set stored in stations_multi_list
-             * to its entries and entry values. The stations_multi_list string set is set on the
+             * Gets the MultiSelectListPreference and adds the String set stored in selected_station_list
+             * to its entries and entry values. The selected_station_list string set is set on the
              * onCreate method of the in the main activity
              */
-            final MultiSelectListPreference stationMultiSelect = (MultiSelectListPreference) findPreference("stations_multi_list");
-            final SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            final Set<String> recordingStationsSet = appSettings.getStringSet("stations_multi_list", Collections.<String>emptySet());
+            stationMultiSelect = (MultiSelectListPreference) findPreference("stations_multi_list");
+            appSettings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            recordingStationsSet = appSettings.getStringSet("selected_station_list", Collections.<String>emptySet());
+            recordingStationsFullSet = appSettings.getStringSet("full_station_list", Collections.<String>emptySet());
 
-
-            Log.i("SERC Log", "MultiSelectPreference Entry Value length: "+ String.valueOf(stationMultiSelect.getEntryValues().length));
-            Log.i("SERC Log", "SharedPreferrences Names Set length: "+ String.valueOf(recordingStationsSet.size()));
-
+            // Ensuring both sets are of the same size
+            if (recordingStationsSet.size() < recordingStationsFullSet.size()) {
+                int j = 1;
+                while (recordingStationsSet.size() != recordingStationsFullSet.size()){
+                    recordingStationsSet.add(String.valueOf(j));
+                    j++;
+                    //recordingStationsSet.add("");
+                }
+            }
 
             // Sizes of the String sets
             int recordingStationsSetSize = recordingStationsSet.size();
+            int recordingStationsFullSetSize = recordingStationsFullSet.size();
+
+
+            Log.i("SERC Log", "MultiSelectPreference Entry Value length: "+ String.valueOf(stationMultiSelect.getEntryValues().length));
+            Log.i("SERC Log", "SharedPreferrences Names Set length: "+ String.valueOf(recordingStationsSetSize));
+
 
 
             // Logging entries in the list
             for (int i=0; i<recordingStationsSetSize; i++){
-                Log.i("SERC Log:", "stations_multi_list_ID " + String.valueOf(i) + ": "+ String.valueOf(recordingStationsSet.toArray()[i]));
+                Log.i("SERC Log:", "selected_station_list_ID " + String.valueOf(i) + ": "+ String.valueOf(recordingStationsSet.toArray()[i]));
+            }
+            for (int i=0; i<recordingStationsFullSetSize; i++){
+                Log.i("SERC Log:", "full_station_list_ID " + String.valueOf(i) + ": "+ String.valueOf(recordingStationsFullSet.toArray()[i]));
             }
 
 
+
             // Converting the String Sets to String Arrays
-            String[] nameArray = recordingStationsSet.toArray(new String[recordingStationsSetSize]);
+            String[] valuesArray = recordingStationsSet.toArray(new String[recordingStationsSetSize]);
+            String[] entriesArray = recordingStationsFullSet.toArray(new String[recordingStationsFullSetSize]);
+
+            Arrays.sort(valuesArray);
+            Arrays.sort(entriesArray);
 
 
-            // Setting stations_multi_list to the entries and stations_multi_list_ID to the values
-            stationMultiSelect.setEntries(nameArray);
-            stationMultiSelect.setEntryValues(nameArray);
+            // Setting selected_station_list to the entries and selected_station_list_ID to the values
+            stationMultiSelect.setEntries(entriesArray);
+            stationMultiSelect.setEntryValues(valuesArray);
 
 
             // OnClickListener for the Station List chooser
             stationMultiSelect.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    Log.i("SERC Log:", "stations_multi_list setOnPreferenceChangeListener triggered ");
-                    Set<String> newValueStringSet = (Set<String>) newValue;
-                    int newValueStringSetSize = newValueStringSet.size();
-                    String [] newValueStringArray = newValueStringSet.toArray(new String[newValueStringSetSize]);
 
+                    Log.i("SERC Log:", "selected_station_list setOnPreferenceChangeListener triggered ");
                     MultiSelectListPreference mPreference = (MultiSelectListPreference) preference;
-                    mPreference.setEntryValues(newValueStringArray);
+                    int index = mPreference.findIndexOfValue(newValue.toString());
+
+                    /*// Ensuring both entry and value sets are of the same size
+                    Set<String> newValuesSet = new HashSet<String>();
+                    if (((Set<String>) newValue).size() < recordingStationsFullSet.size()) {
+                        int j = 0;
+                        while (newValuesSet.size() != recordingStationsFullSet.size()){
+                            if (index == j) {
+                                newValuesSet.add(newValue.toString());
+
+                            }else{
+                                newValuesSet.add(String.valueOf(j));
+                                j++;
+                            }
+                        }
+                    }
+
+                    String[] newValuesArray = newValuesSet.toArray(new String[newValuesSet.size()]);
+                    mPreference.setEntryValues(newValuesArray);*/
+
+                    //mPreference.setValues((Set<String>) newValue);
 
                     // Edit the SharePreferences as well
                     SharedPreferences.Editor editor = appSettings.edit();
-                    editor.putStringSet("stations_multi_list", newValueStringSet);
-                    Log.i("SERC Log:", "stations_multi_list size: "+ String.valueOf(newValueStringSet.size()));
-                    for (int i=0; i<newValueStringSet.size(); i++){
-                        Log.i("SERC Log:", "Update stations_multi_list on click " + String.valueOf(i) + ": "+ String.valueOf(newValueStringSet.toArray()[i]));
+                    editor.putStringSet("selected_station_list", (Set<String>) newValue);
+
+                    // Logging new entries in the settings
+                    Log.i("SERC Log:", "selected_station_list size: "+ String.valueOf(((Set<String>) newValue).size()));
+                    for (int i=0; i<((Set<String>) newValue).size(); i++){
+                        Log.i("SERC Log:", "Update selected_station_list on click " + String.valueOf(i) + ": "+ String.valueOf(((Set<String>) newValue).toArray()[i]));
                     }
+
                     editor.apply();
                     return true;
                 }

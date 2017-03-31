@@ -223,8 +223,10 @@ public class GraphActivity extends AppCompatActivity {
                     entries.add(new Entry((float) xAxis.get(i), yAxis.get(i).floatValue()));
                 }
 
-                Log.i("SERC Log", "Drawing graph");
+                Log.i("SERC Log", "Clearing previous graph");
+                lineChart.clear();
                 lineChart.invalidate();
+                lineChart.fitScreen();
 
                 Log.i("SERC Log", "Styling xAxis");
                 XAxis styledXAxis = lineChart.getXAxis();
@@ -429,7 +431,7 @@ public class GraphActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String s) {
-            //super.onPostExecute(s);
+            super.onPostExecute(s);
             Log.i("SERC Log", "Loading Dialog onPostExecute exists: "+String.valueOf(dialog.isShowing()));
             if(dialog.isShowing()) {
                 dialog.dismiss();

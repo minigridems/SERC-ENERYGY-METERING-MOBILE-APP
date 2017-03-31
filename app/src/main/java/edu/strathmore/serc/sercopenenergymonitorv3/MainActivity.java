@@ -66,44 +66,56 @@ public class MainActivity extends AppCompatActivity {
          */
         Log.i("SERC Log", "Pulling preferences");
         SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
-        Set<String> recordingStationsInSettings = appSettings.getStringSet("stations_multi_list", Collections.<String>emptySet());
+        Set<String> recordingStationsInSettings = appSettings.getStringSet("selected_station_list", Collections.<String>emptySet());
         Set<String> chosenRecordingStations = new HashSet<>();
-        /**
-         * Check for the first time the app is run.
-         * Checks that there is something in the list and displays it in the logs
-         */
-        Log.i("SERC Log", "Checking if SharedPrefs are empty:" + String.valueOf(recordingStations.isEmpty()));
-        if (recordingStationsInSettings.isEmpty()) {
-            // Logging entries in the list
-            Log.i("SERC Log:", "stations_multi_list size: "+ String.valueOf(recordingStationsInSettings.size()));
-            for (int i=0; i<recordingStationsInSettings.size(); i++){
-                Log.i("SERC Log:", "stations_multi_list " + String.valueOf(i) + ": "+ String.valueOf(recordingStationsInSettings.toArray()[i]));
-            }
 
-            // Creates an array list of names of the stations in the form "TAG - NAME"
-            Log.i("SERC Log:", "Building List of Recording Station Names");
-            ArrayList<String> recordingStationNames = new ArrayList<>();
-            for (int i=0; i<recordingStations.size(); i++){
-                recordingStationNames.add(recordingStations.get(i).getStationTag() + " - " + recordingStations.get(i).getStationName());
-            }
-            // Adds these names to a new Set chosenRecordingStations
-            Log.i("SERC Log:", "Adding the names to settings");
-            for (int i=0; i<recordingStationNames.size(); i++) {
-                String name = recordingStationNames.get(i);
-                chosenRecordingStations.add(name);
-            }
-            Log.i("SERC Log:", "Saving settings");
-            SharedPreferences.Editor editor = appSettings.edit();
-            editor.putStringSet("stations_multi_list", chosenRecordingStations);
+
+        // Creates an array list of names of the stations in the form "TAG - NAME"
+        Log.i("SERC Log:", "Building List of Recording Station Names");
+        ArrayList<String> recordingStationNames = new ArrayList<>();
+        for (int i=0; i<recordingStations.size(); i++){
+            recordingStationNames.add(recordingStations.get(i).getStationTag() + " - " + recordingStations.get(i).getStationName());
+        }
+
+        // Sort List Alphabetically
+        Collections.sort(recordingStationNames, String.CASE_INSENSITIVE_ORDER);
+
+        // Adds these names to a new String Array List to chosenRecordingStations
+        Log.i("SERC Log:", "Adding the names to settings");
+        chosenRecordingStations.addAll(recordingStationNames);
+
+        Log.i("SERC Log:", "Saving new settings");
+        SharedPreferences.Editor editor = appSettings.edit();
+        editor.putStringSet("full_station_list", chosenRecordingStations);
+
+        Log.i("SERC Log", "Checking if selected_station_list in SharedPrefs is empty: " + String.valueOf(recordingStations.isEmpty()));
+        if (recordingStationsInSettings.isEmpty()) {
+            // Adds full list in case selected list is empty e.g. on first launch
+            editor.putStringSet("selected_station_list", chosenRecordingStations);
             editor.apply();
         }
 
+        // Logging entries in the list
+        Log.i("SERC Log:", "selected_station_list size: "+ String.valueOf(recordingStationsInSettings.size()));
+        for (int i=0; i<recordingStationsInSettings.size(); i++){
+            Log.i("SERC Log:", "selected_station_list " + String.valueOf(i) + ": "+ String.valueOf(recordingStationsInSettings.toArray()[i]));
+        }
 
-
+        ArrayList<RecordingStation> recordingStationsForAdapter = new ArrayList<>();
+        for (String nameTag:recordingStationsInSettings){
+            //String nameTag = recordingStationsInSettings;
+            for (int j = 0; j < recordingStations.size(); j++){
+                String currentStn = recordingStations.get(j).getStationTag() + " - " + recordingStations.get(j).getStationName();
+                if (nameTag.contains(currentStn)){
+                    recordingStationsForAdapter.add(recordingStations.get(j));
+                }
+            }
+        }
 
 
         // Setting the RecordingStationAdapter<RecordingStation> to the ListView
-        adapter = new RecordingStationAdapter(this, recordingStations);
+        //adapter = new RecordingStationAdapter(this, recordingStations);
+        adapter = new RecordingStationAdapter(this, recordingStationsForAdapter);
         ListView listView = (ListView) findViewById(R.id.polling_results_list_view);
         listView.setAdapter(adapter);
 
