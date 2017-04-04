@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -39,10 +38,6 @@ public class MainActivity extends AppCompatActivity {
     private RecordingStationAdapter adapter;
 
 
-    private String selectedStationsInSettings = "";
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Log start of onCreate method
@@ -70,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         ListView listView = (ListView) findViewById(R.id.polling_results_list_view);
         listView.setAdapter(adapter);
 
-        /**
+        /*
          * OnItemClickLister for each item in the ListView. When an item in the listview is clicked,
          * this sends an intent to open GraphActivity (while passing some information about the
          * object to GraphActivity within the intent)
@@ -102,16 +97,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Define onClick action for the Floating action button. Sends intent to open GraphActivity
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent openGraphIntent = new Intent(MainActivity.this, GraphActivity.class);
-                startActivity(openGraphIntent);
-
-            }
-        });
     }
 
     @Override
@@ -160,9 +145,9 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<RecordingStation> getRecordingStationsList(){
 
         // Create an ArrayList of RecordingStation Objects with the variable name recordingStations
-        ArrayList<RecordingStation> recordingStations = new ArrayList<RecordingStation>();
+        ArrayList<RecordingStation> recordingStations = new ArrayList<>();
 
-        String result = "";
+        String result;
         try {
             // Call CmsApiCall using the MainActivity as the context. The result is the JSON file in
             // form of a continuous String.
@@ -226,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private ArrayList<RecordingStation> getRecordingStationInSettings(ArrayList<RecordingStation> recordingStations){
-        /**
+        /*
          * This function takes in an array list of the recording stations and returns an array list
          * of recording stations which is a subset of the of the input. This subset contains all the
          * recording stations contained within the setting prefferences
