@@ -49,7 +49,7 @@ public class GraphActivity extends AppCompatActivity {
     static final int TIME_DIALOG_ID_END = 3;
 
 
-    private Calendar cal;
+
     private String startTime = "";
     private String endTime = "";
     private int stationID = 0;
@@ -95,13 +95,11 @@ public class GraphActivity extends AppCompatActivity {
          * Otherwise this will default to 01 Jan 1970 (UNIX = 0) and result in a lot of swiping for
          * the user to get to today's date
          */
-        // Setting the date for the calendar dialog
+        Calendar cal;
+        // Setting the date for the calendar dialog to be today
         cal = Calendar.getInstance();
-        year_start = cal.get(Calendar.YEAR);
         year_end = cal.get(Calendar.YEAR);
-        month_start = cal.get(Calendar.MONTH);
         month_end = cal.get(Calendar.MONTH);
-        day_start = cal.get(Calendar.DAY_OF_MONTH);
         day_end = cal.get(Calendar.DAY_OF_MONTH);
         // To create the date picker dialog this custom method needs to be called
         showCalendarDialog();
@@ -120,6 +118,13 @@ public class GraphActivity extends AppCompatActivity {
         // Setting the current time as now and the start time as one week from that date
         endTime = tsLong.toString();
         startTime = String.valueOf(Long.parseLong(endTime) - 604800000L); //604,800,000 is one week in milliseconds
+
+        // Setting the date for the calendar dialog to be a week from today
+        cal.setTimeInMillis(Long.parseLong(startTime));
+        day_start = cal.get(Calendar.DAY_OF_MONTH);
+        month_start = cal.get(Calendar.MONTH);
+        year_start = cal.get(Calendar.YEAR);
+
 
         // Updating the link to include the change in new start time and end time
         setLink();
