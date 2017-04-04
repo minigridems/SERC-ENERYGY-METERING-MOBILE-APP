@@ -40,34 +40,40 @@ import mehdi.sakout.fancybuttons.FancyButton;
 
 public class GraphActivity extends AppCompatActivity {
 
+    // To be used in the link to be sent and are not meant to be changed currently
+    // Possible to change in the future to be input by the user
     final static String ROOT_LINK = "https://serc.strathmore.edu/emoncms/feed/data.json?id=";
     final static String API_KEY= "36ec19e2a135f22b50883d555eea2114";
+
+    // Placeholder. Not used currently
     final static int INTERVAL = 900;
+
+    // Needed in for the onCreateDialog method to decide what dialog to show
     static final int CALENDAR_DIALOG_ID_START = 0;
     static final int CALENDAR_DIALOG_ID_END = 1;
     static final int TIME_DIALOG_ID_START = 2;
     static final int TIME_DIALOG_ID_END = 3;
 
 
-
+    // Needed for link and is meant to be changed depending on the values input by the user
     private String startTime = "";
     private String endTime = "";
     private int stationID = 0;
     private String stationName = "";
     private String stationTag = "";
     private String link;
+
+    // Global String variable that holds the JSON array when the user requests a time range
     private String result = "[]";
 
+
     // Needed for calendar dialog
-    private FancyButton btnStartDate, btnEndDate;
     private TextView startDateTextView, endDateTextView;
-    //int year_x, month_x, day_x;
     private int year_start, year_end, month_start, month_end, day_start, day_end;
 
+
     // Needed for time dialog
-    private FancyButton btnStartTime, btnEndTime;
     private TextView startTimeTextView, endTimeTextView;
-    //int hour_x, minute_x;
     private int hour_start, hour_end, minute_start, minute_end;
 
 
@@ -76,7 +82,7 @@ public class GraphActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_graph);
 
-        //Getting data from received intent
+        //Getting data from received intent to start GraphActivity
         Bundle extras = getIntent().getExtras();
         // Checks that there are extras in the intent
         if (extras != null) {
@@ -91,20 +97,21 @@ public class GraphActivity extends AppCompatActivity {
         TextView graphHeading = (TextView) findViewById(R.id.graph_title);
         graphHeading.setText(stationTag + " - " + stationName);
 
-        /** Setting today's date and time as default values when the calendar dialog first shows up
+        /* Setting today's date and time as default values when the calendar dialog first shows up
          * Otherwise this will default to 01 Jan 1970 (UNIX = 0) and result in a lot of swiping for
          * the user to get to today's date
          */
         Calendar cal;
         // Setting the date for the calendar dialog to be today
-        cal = Calendar.getInstance();
+        cal = Calendar.getInstance(); // Get current time on the device
+        // Sets the end date variables to be current time on the device
         year_end = cal.get(Calendar.YEAR);
         month_end = cal.get(Calendar.MONTH);
         day_end = cal.get(Calendar.DAY_OF_MONTH);
         // To create the date picker dialog this custom method needs to be called
         showCalendarDialog();
 
-        // Setting today's date as default values when the dialog shows
+        // Sets the current time of the device as the start and end time variables
         hour_start = cal.get(Calendar.HOUR_OF_DAY);
         hour_end = cal.get(Calendar.HOUR_OF_DAY);
         minute_start = cal.get(Calendar.MINUTE);
@@ -112,12 +119,19 @@ public class GraphActivity extends AppCompatActivity {
         // To create the time picker dialog this custom method needs to be called
         showTimeDialog();
 
-
+        /**
+         * When the user presses the "Draw Graph" button without setting a custom start/end date and/or
+         * time, the app should draw the graph for the past week. Because of this, the default values
+         * for the UNIX start time should be a week from the device's current time. As exactly one week
+         * from the device's current time will have the same time variables, only the date variables
+         * need to be changed
+         */
         // Getting the current time from the system clock in milliseconds
         Long tsLong = System.currentTimeMillis();
         // Setting the current time as now and the start time as one week from that date
         endTime = tsLong.toString();
         startTime = String.valueOf(Long.parseLong(endTime) - 604800000L); //604,800,000 is one week in milliseconds
+
 
         // Setting the date for the calendar dialog to be a week from today
         cal.setTimeInMillis(Long.parseLong(startTime));
@@ -126,7 +140,7 @@ public class GraphActivity extends AppCompatActivity {
         year_start = cal.get(Calendar.YEAR);
 
 
-        // Updating the link to include the change in new start time and end time
+        // Updating the link to include the change in new UNIX start time and end time
         setLink();
 
         // Draw graph using the updated info in the link
@@ -136,14 +150,13 @@ public class GraphActivity extends AppCompatActivity {
         /*
          * OnClick Listener for the button that will be used to draw the graph
          * Before the graph is drawn, the TextViews next to the date/time buttons are set to the
-         * values that the user selected
+         * values that the user selected (especially useful if the user has pressed the "Draw Graph"
+         * button without setting a custom start/end date and/or time)
          */
         FancyButton drawGraphFancyButton = (FancyButton) findViewById(R.id.btn_draw_graph);
-        // OnClickListener for the Draw Graph FancyButton
         drawGraphFancyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setLink();
 
                 // Update all the text views with the correct data
                 startDateTextView.setText(day_start+"/"+(month_start+1)+"/"+year_start);
@@ -251,8 +264,8 @@ public class GraphActivity extends AppCompatActivity {
 
     public void showCalendarDialog(){
         // FancyButtons and TextViews relating to the calendar
-        btnStartDate = (FancyButton) findViewById(R.id.btn_set_start_date);
-        btnEndDate = (FancyButton) findViewById(R.id.btn_set_end_date);
+        FancyButton btnStartDate = (FancyButton) findViewById(R.id.btn_set_start_date);
+        FancyButton btnEndDate = (FancyButton) findViewById(R.id.btn_set_end_date);
         startDateTextView = (TextView) findViewById(R.id.textview_set_start_date);
         endDateTextView = (TextView) findViewById(R.id.textview_set_end_date);
 
@@ -262,21 +275,6 @@ public class GraphActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v){
                         showDialog(CALENDAR_DIALOG_ID_START);
-
-                        // Setting the TextView textview_set_start_date to show the time chosen
-                        //startDateTextView.setText(day_start+"/"+(month_start+1)+"/"+year_start);
-
-                        Calendar chosenStart = Calendar.getInstance();
-                        chosenStart.set(year_start, month_start, day_start, hour_start, minute_start);
-                        startTime = String.valueOf(chosenStart.getTimeInMillis());
-                        setLink();
-                        Log.i("Chosen UNIX Start Date", startTime);
-
-                        Log.i("Start and End Date", "Start: " + day_start+"/"+(month_start+1)+"/"+year_start + " End:" + day_end+"/"+(month_end+1)+"/"+year_end);
-                        Log.i("Start and End Time", "Start: " + hour_start+":"+minute_start+"hrs" + " End:" + hour_end+":"+minute_end+"hrs");
-
-
-
                     }
                 }
         );
@@ -286,16 +284,6 @@ public class GraphActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v){
                         showDialog(CALENDAR_DIALOG_ID_END);
-                        //endDateTextView.setText(day_end+"/"+(month_end+1)+"/"+year_end);
-
-                        Calendar chosenEnd = Calendar.getInstance();
-                        chosenEnd.set(year_end, month_end, day_end, hour_end, minute_end);
-                        endTime = String.valueOf(chosenEnd.getTimeInMillis());
-                        setLink();
-                        Log.i("Chosen UNIX End Date", endTime);
-
-                        Log.i("Start and End Date", "Start: " + day_start+"/"+(month_start+1)+"/"+year_start + " End:" + day_end+"/"+(month_end+1)+"/"+year_end);
-                        Log.i("Start and End Time", "Start: " + hour_start+":"+minute_start+"hrs" + " End:" + hour_end+":"+minute_end+"hrs");
                     }
                 }
         );
@@ -303,8 +291,8 @@ public class GraphActivity extends AppCompatActivity {
 
     public void showTimeDialog(){
         // FancyButtons and TextViews relating to time
-        btnStartTime = (FancyButton) findViewById(R.id.btn_set_start_time);
-        btnEndTime = (FancyButton) findViewById(R.id.btn_set_end_time);
+        FancyButton btnStartTime = (FancyButton) findViewById(R.id.btn_set_start_time);
+        FancyButton btnEndTime = (FancyButton) findViewById(R.id.btn_set_end_time);
         startTimeTextView = (TextView) findViewById(R.id.textview_set_start_time);
         endTimeTextView = (TextView) findViewById(R.id.textview_set_end_time);
 
@@ -313,14 +301,6 @@ public class GraphActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 showDialog(TIME_DIALOG_ID_START);
-
-
-                Calendar chosenStart = Calendar.getInstance();
-                chosenStart.set(year_start, month_start, day_start, hour_start, minute_start);
-                startTime = String.valueOf(chosenStart.getTimeInMillis());
-                setLink();
-                Log.i("Chosen Start Time", startTime);
-                Log.i("Start and End Time", "Start: " + hour_start+":"+minute_start+"hrs" + " End:" + hour_end+":"+minute_end+"hrs");
             }
         });
 
@@ -328,14 +308,6 @@ public class GraphActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 showDialog(TIME_DIALOG_ID_END);
-
-
-                Calendar chosenEnd = Calendar.getInstance();
-                chosenEnd.set(year_end, month_end, day_end, hour_end, minute_end);
-                endTime = String.valueOf(chosenEnd.getTimeInMillis());
-                setLink();
-                Log.i("Chosen End Time", endTime);
-                Log.i("Start and End Time", "Start: " + hour_start+":"+minute_start+"hrs" + " End:" + hour_end+":"+minute_end+"hrs");
             }
         });
     }
@@ -363,6 +335,18 @@ public class GraphActivity extends AppCompatActivity {
 
             // Set TextView textview_set_start_date to show the current chosen start date
             startDateTextView.setText(day_start+"/"+(month_start+1)+"/"+year_start);
+
+            // Setting the TextView textview_set_start_date to show the time chosen
+            Calendar chosenStart = Calendar.getInstance();
+            chosenStart.set(year_start, month_start, day_start, hour_start, minute_start);
+            startTime = String.valueOf(chosenStart.getTimeInMillis());
+            setLink();
+            Log.i("Chosen UNIX Start Date", startTime);
+
+            Log.i("Start and End Date", "Start: " + day_start+"/"+(month_start+1)+"/"+year_start + " End:" + day_end+"/"+(month_end+1)+"/"+year_end);
+            Log.i("Start and End Time", "Start: " + hour_start+":"+minute_start+"hrs" + " End:" + hour_end+":"+minute_end+"hrs");
+
+
         }
     };
 
@@ -375,6 +359,15 @@ public class GraphActivity extends AppCompatActivity {
 
             // Set TextView textview_set_end_date to show the current chosen end date
             endDateTextView.setText(day_end+"/"+(month_end+1)+"/"+year_end);
+
+            Calendar chosenEnd = Calendar.getInstance();
+            chosenEnd.set(year_end, month_end, day_end, hour_end, minute_end);
+            endTime = String.valueOf(chosenEnd.getTimeInMillis());
+            setLink();
+            Log.i("Chosen UNIX End Date", endTime);
+
+            Log.i("Start and End Date", "Start: " + day_start+"/"+(month_start+1)+"/"+year_start + " End:" + day_end+"/"+(month_end+1)+"/"+year_end);
+            Log.i("Start and End Time", "Start: " + hour_start+":"+minute_start+"hrs" + " End:" + hour_end+":"+minute_end+"hrs");
         }
     };
 
@@ -386,6 +379,14 @@ public class GraphActivity extends AppCompatActivity {
 
             // Set TextView textview_set_start_time to show the current chosen start time
             startTimeTextView.setText(hour_start+":"+minute_start+"hrs");
+
+
+            Calendar chosenStart = Calendar.getInstance();
+            chosenStart.set(year_start, month_start, day_start, hour_start, minute_start);
+            startTime = String.valueOf(chosenStart.getTimeInMillis());
+            setLink();
+            Log.i("Chosen Start Time", startTime);
+            Log.i("Start and End Time", "Start: " + hour_start+":"+minute_start+"hrs" + " End:" + hour_end+":"+minute_end+"hrs");
         }
     };
 
@@ -397,6 +398,13 @@ public class GraphActivity extends AppCompatActivity {
 
             // Set TextView textview_set_end_time to show the current chosen end time
             endTimeTextView.setText(hour_end+":"+minute_end+"hrs");
+
+            Calendar chosenEnd = Calendar.getInstance();
+            chosenEnd.set(year_end, month_end, day_end, hour_end, minute_end);
+            endTime = String.valueOf(chosenEnd.getTimeInMillis());
+            setLink();
+            Log.i("Chosen End Time", endTime);
+            Log.i("Start and End Time", "Start: " + hour_start+":"+minute_start+"hrs" + " End:" + hour_end+":"+minute_end+"hrs");
         }
     };
 

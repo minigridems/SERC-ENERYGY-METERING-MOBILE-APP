@@ -18,8 +18,9 @@
             android:background="@color/colorPrimary"
             android:gravity="center"
             android:textColor="@android:color/white"
-            android:textSize="16sp"
+            android:textSize="20sp"
             android:textStyle="bold"
+            android:paddingTop="8dp"
             tools:text="Heading"/>
 
 
@@ -147,8 +148,8 @@
                 android:id="@+id/btn_draw_graph"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
                 android:layout_margin="16dp"
+
                 fancy:fb_borderColor="#FFFFFF"
                 fancy:fb_borderWidth="1dp"
                 fancy:fb_defaultColor="@color/colorPrimary"
