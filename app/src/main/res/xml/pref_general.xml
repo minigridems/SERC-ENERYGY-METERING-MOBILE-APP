@@ -18,7 +18,7 @@
 
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->
     <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
-    <EditTextPreference
+    <!--<EditTextPreference
         android:capitalize="words"
         android:defaultValue=" "
         android:inputType="textCapWords"
@@ -26,7 +26,7 @@
         android:maxLines="1"
         android:selectAllOnFocus="true"
         android:singleLine="true"
-        android:title="@string/pref_title_display_name" />
+        android:title="@string/pref_title_display_name" />-->
 
     <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
          dismiss it. -->
@@ -39,7 +39,7 @@
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
         android:title="@string/pref_title_check_change_in_data"
-        android:summary="How often to check for updates"/>
+        />
 
 
 

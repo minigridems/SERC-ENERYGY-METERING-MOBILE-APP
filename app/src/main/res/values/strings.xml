@@ -18,10 +18,10 @@
     <string name="pref_title_display_name">Display name</string>
     <string name="pref_default_display_name">John Smith</string>
 
-    <string name="pref_title_check_change_in_data">Check for change in data</string>
+    <string name="pref_title_check_change_in_data">Update frequency for Power Readings</string>
     <string-array name="pref_example_list_titles">
-        <item>Always</item>
-        <item>When possible</item>
+        <item>Every 10 seconds</item>
+        <item>Every 1 minute</item>
         <item>Never</item>
     </string-array>
     <string-array name="pref_example_list_values">
