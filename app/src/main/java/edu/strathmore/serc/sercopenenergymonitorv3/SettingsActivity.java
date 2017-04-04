@@ -212,7 +212,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 while (recordingStationsSet.size() != recordingStationsFullSet.size()){
                     recordingStationsSet.add(String.valueOf(j));
                     j++;
-                    //recordingStationsSet.add("");
+
                 }
             }
 
@@ -246,37 +246,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
             // Setting selected_station_list to the entries and selected_station_list_ID to the values
             stationMultiSelect.setEntries(entriesArray);
-            stationMultiSelect.setEntryValues(valuesArray);
+            stationMultiSelect.setEntryValues(entriesArray);
 
 
             // OnClickListener for the Station List chooser
             stationMultiSelect.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-
                     Log.i("SERC Log:", "selected_station_list setOnPreferenceChangeListener triggered ");
-                    MultiSelectListPreference mPreference = (MultiSelectListPreference) preference;
-                    int index = mPreference.findIndexOfValue(newValue.toString());
-
-                    /*// Ensuring both entry and value sets are of the same size
-                    Set<String> newValuesSet = new HashSet<String>();
-                    if (((Set<String>) newValue).size() < recordingStationsFullSet.size()) {
-                        int j = 0;
-                        while (newValuesSet.size() != recordingStationsFullSet.size()){
-                            if (index == j) {
-                                newValuesSet.add(newValue.toString());
-
-                            }else{
-                                newValuesSet.add(String.valueOf(j));
-                                j++;
-                            }
-                        }
-                    }
-
-                    String[] newValuesArray = newValuesSet.toArray(new String[newValuesSet.size()]);
-                    mPreference.setEntryValues(newValuesArray);*/
-
-                    //mPreference.setValues((Set<String>) newValue);
 
                     // Edit the SharePreferences as well
                     SharedPreferences.Editor editor = appSettings.edit();
@@ -288,6 +265,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                         Log.i("SERC Log:", "Update selected_station_list on click " + String.valueOf(i) + ": "+ String.valueOf(((Set<String>) newValue).toArray()[i]));
                     }
 
+                    // Apply the settings
                     editor.apply();
                     return true;
                 }

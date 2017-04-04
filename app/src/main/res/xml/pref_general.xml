@@ -1,16 +1,26 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <SwitchPreference
+
+    <MultiSelectListPreference
+        android:defaultValue="@array/pref_station_list_values"
+        android:entries="@array/pref_stations_list_titles"
+        android:entryValues="@array/pref_station_list_values"
+        android:key="stations_multi_list"
+        android:summary="@string/pref_multi_list_summary"
+        android:title="@string/pref_list_of_stations"/>
+
+
+    <!--<SwitchPreference
         android:defaultValue="true"
         android:key="example_switch"
         android:summary="@string/pref_description_social_recommendations"
-        android:title="@string/pref_title_social_recommendations" />
+        android:title="@string/pref_title_social_recommendations" />-->
 
     <!-- NOTE: EditTextPreference accepts EditText attributes. -->
     <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
     <EditTextPreference
         android:capitalize="words"
-        android:defaultValue="@string/pref_default_display_name"
+        android:defaultValue=" "
         android:inputType="textCapWords"
         android:key="example_text"
         android:maxLines="1"
@@ -28,19 +38,12 @@
         android:key="example_list"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
-        android:title="@string/pref_title_add_friends_to_messages" />
+        android:title="@string/pref_title_check_change_in_data"
+        android:summary="How often to check for updates"/>
 
 
 
 
-
-    <MultiSelectListPreference
-        android:defaultValue="@array/pref_station_list_values"
-        android:entries="@array/pref_stations_list_titles"
-        android:entryValues="@array/pref_station_list_values"
-        android:key="stations_multi_list"
-        android:summary="@string/pref_multi_list_summary"
-        android:title="@string/pref_list_of_stations"/>
 
 
 </PreferenceScreen>

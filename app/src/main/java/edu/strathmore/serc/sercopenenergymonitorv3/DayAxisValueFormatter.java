@@ -31,7 +31,7 @@ public class DayAxisValueFormatter implements IValueFormatter, IAxisValueFormatt
     @Override
     public String getFormattedValue(float value, AxisBase axis) {
         try{
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy \nHH:mm:ss");
+            SimpleDateFormat sdf = new SimpleDateFormat("h:mm a \n dd/MM/yyyy");
             Date date = new Date((long) value);
             return sdf.format(date);
         }

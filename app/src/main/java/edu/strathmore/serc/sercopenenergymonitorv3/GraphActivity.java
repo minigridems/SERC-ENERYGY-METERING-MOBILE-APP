@@ -47,53 +47,29 @@ public class GraphActivity extends AppCompatActivity {
     static final int CALENDAR_DIALOG_ID_END = 1;
     static final int TIME_DIALOG_ID_START = 2;
     static final int TIME_DIALOG_ID_END = 3;
-    protected DatePickerDialog.OnDateSetListener datePickerListenerEnd = new DatePickerDialog.OnDateSetListener() {
-        @Override
-        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-            year_end = year;
-            month_end = month;
-            day_end = dayOfMonth;
-        }
-    };
-    protected TimePickerDialog.OnTimeSetListener timePickerListenerEnd = new TimePickerDialog.OnTimeSetListener() {
-        @Override
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            hour_end = hourOfDay;
-            minute_end = minute;
-        }
-    };
-    String startTime = "";
-    String endTime = "";
-    int stationID=0;
-    String stationName = "";
-    String stationTag = "";
-    String link;
-    String result = "[]";
+
+
+    private Calendar cal;
+    private String startTime = "";
+    private String endTime = "";
+    private int stationID = 0;
+    private String stationName = "";
+    private String stationTag = "";
+    private String link;
+    private String result = "[]";
+
     // Needed for calendar dialog
-    FancyButton btnStartDate, btnEndDate;
-    TextView startDateTextView, endDateTextView;
+    private FancyButton btnStartDate, btnEndDate;
+    private TextView startDateTextView, endDateTextView;
     //int year_x, month_x, day_x;
-    int year_start, year_end, month_start, month_end, day_start, day_end;
-    protected DatePickerDialog.OnDateSetListener datePickerListenerStart = new DatePickerDialog.OnDateSetListener() {
-        @Override
-        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-            year_start = year;
-            month_start = month;
-            day_start = dayOfMonth;
-        }
-    };
+    private int year_start, year_end, month_start, month_end, day_start, day_end;
+
     // Needed for time dialog
-    FancyButton btnStartTime, btnEndTime;
-    TextView startTimeTextView, endTimeTextView;
+    private FancyButton btnStartTime, btnEndTime;
+    private TextView startTimeTextView, endTimeTextView;
     //int hour_x, minute_x;
-    int hour_start, hour_end, minute_start, minute_end;
-    protected TimePickerDialog.OnTimeSetListener timePickerListenerStart = new TimePickerDialog.OnTimeSetListener() {
-        @Override
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            hour_start = hourOfDay;
-            minute_start = minute;
-        }
-    };
+    private int hour_start, hour_end, minute_start, minute_end;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,7 +78,7 @@ public class GraphActivity extends AppCompatActivity {
 
         //Getting data from received intent
         Bundle extras = getIntent().getExtras();
-
+        // Checks that there are extras in the intent
         if (extras != null) {
             stationID = extras.getInt("Station_ID");
             stationTag = extras.getString("Station_tag");
@@ -111,27 +87,31 @@ public class GraphActivity extends AppCompatActivity {
                     "Station_Tag" + String.valueOf(stationTag)+"Station_Name" + String.valueOf(stationName));
         }
 
+        // Sets the graph title (TextView at the top of the activity) to be have the title and tag from the intent
         TextView graphHeading = (TextView) findViewById(R.id.graph_title);
         graphHeading.setText(stationTag + " - " + stationName);
 
-        // Setting today's date as default values when the dialog shows
-        final Calendar cal = Calendar.getInstance();
+        /** Setting today's date and time as default values when the calendar dialog first shows up
+         * Otherwise this will default to 01 Jan 1970 (UNIX = 0) and result in a lot of swiping for
+         * the user to get to today's date
+         */
+        // Setting the date for the calendar dialog
+        cal = Calendar.getInstance();
         year_start = cal.get(Calendar.YEAR);
         year_end = cal.get(Calendar.YEAR);
         month_start = cal.get(Calendar.MONTH);
         month_end = cal.get(Calendar.MONTH);
-        day_start = cal.get(Calendar.DAY_OF_MONTH)-7;
+        day_start = cal.get(Calendar.DAY_OF_MONTH);
         day_end = cal.get(Calendar.DAY_OF_MONTH);
-        // To create the date picker dialog
+        // To create the date picker dialog this custom method needs to be called
         showCalendarDialog();
-
 
         // Setting today's date as default values when the dialog shows
         hour_start = cal.get(Calendar.HOUR_OF_DAY);
         hour_end = cal.get(Calendar.HOUR_OF_DAY);
         minute_start = cal.get(Calendar.MINUTE);
         minute_end = cal.get(Calendar.MINUTE);
-        // To create the time picker dialog
+        // To create the time picker dialog this custom method needs to be called
         showTimeDialog();
 
 
@@ -145,12 +125,16 @@ public class GraphActivity extends AppCompatActivity {
         setLink();
 
         // Draw graph using the updated info in the link
-        Log.i("Drawing intial graph:", "Station ID: " + stationID + " Start time UNIX: " + String.valueOf(startTime)+ ", End time UNIX: " + String.valueOf(endTime));
+        Log.i("Drawing initial graph:", "Station ID: " + stationID + " Start time UNIX: " + String.valueOf(startTime)+ ", End time UNIX: " + String.valueOf(endTime));
         drawGraph(link);
 
 
-        // OnClickListener for the Draw Graph FancyButton
+        /**
+         * OnClick Listener for the button that will be used to draw the graph
+         * Before the graph is drawn, the TextViews next to the date/time buttons are set to the current values
+         */
         FancyButton drawGraphFancyButton = (FancyButton) findViewById(R.id.btn_draw_graph);
+        // OnClickListener for the Draw Graph FancyButton
         drawGraphFancyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -170,15 +154,16 @@ public class GraphActivity extends AppCompatActivity {
                     Toast.makeText(GraphActivity.this, "The Start Time or Date is after the End Time or Date", Toast.LENGTH_LONG).show();
                 }
                 else{
+                    // Updates the link before using it in the drawGraph method
                     setLink();
                     drawGraph(link);
-
                 }
             }
         });
 
     }
 
+    // Method for drawing the graph. Requires the HTTP link to the JSON file
     private void drawGraph(String graphLink){
         LineChart lineChart = (LineChart) findViewById(R.id.graph);
 
@@ -231,7 +216,7 @@ public class GraphActivity extends AppCompatActivity {
                 Log.i("SERC Log", "Styling xAxis");
                 XAxis styledXAxis = lineChart.getXAxis();
                 styledXAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-                styledXAxis.setLabelRotationAngle(90f);
+                styledXAxis.setLabelRotationAngle(45f);
 
                 Log.i("SERC Log", "Configuring the Data Set");
                 LineDataSet dataSet = new LineDataSet(entries, "Power");
@@ -364,6 +349,41 @@ public class GraphActivity extends AppCompatActivity {
         return null;
     }
 
+    protected DatePickerDialog.OnDateSetListener datePickerListenerStart = new DatePickerDialog.OnDateSetListener() {
+        @Override
+        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+            year_start = year;
+            month_start = month;
+            day_start = dayOfMonth;
+        }
+    };
+
+    protected DatePickerDialog.OnDateSetListener datePickerListenerEnd = new DatePickerDialog.OnDateSetListener() {
+        @Override
+        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+            year_end = year;
+            month_end = month;
+            day_end = dayOfMonth;
+        }
+    };
+
+    protected TimePickerDialog.OnTimeSetListener timePickerListenerStart = new TimePickerDialog.OnTimeSetListener() {
+        @Override
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            hour_start = hourOfDay;
+            minute_start = minute;
+        }
+    };
+
+    protected TimePickerDialog.OnTimeSetListener timePickerListenerEnd = new TimePickerDialog.OnTimeSetListener() {
+        @Override
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            hour_end = hourOfDay;
+            minute_end = minute;
+        }
+    };
+
+    // Method that updates the link with the latest variables in its global variables
     private void setLink(){
         link = ROOT_LINK + String.valueOf(stationID) + "&start=" + startTime + "&end=" + endTime
                 + "&interval=" + INTERVAL + "&skipmissing=1&limitinterval=1&apikey=" + API_KEY;
