@@ -133,10 +133,10 @@ public class GraphActivity extends AppCompatActivity {
         Log.i("Drawing initial graph:", "Station ID: " + stationID + " Start time UNIX: " + String.valueOf(startTime)+ ", End time UNIX: " + String.valueOf(endTime));
         drawGraph(link);
 
-
-        /**
+        /*
          * OnClick Listener for the button that will be used to draw the graph
-         * Before the graph is drawn, the TextViews next to the date/time buttons are set to the current values
+         * Before the graph is drawn, the TextViews next to the date/time buttons are set to the
+         * values that the user selected
          */
         FancyButton drawGraphFancyButton = (FancyButton) findViewById(R.id.btn_draw_graph);
         // OnClickListener for the Draw Graph FancyButton
@@ -264,7 +264,7 @@ public class GraphActivity extends AppCompatActivity {
                         showDialog(CALENDAR_DIALOG_ID_START);
 
                         // Setting the TextView textview_set_start_date to show the time chosen
-                        startDateTextView.setText(day_start+"/"+(month_start+1)+"/"+year_start);
+                        //startDateTextView.setText(day_start+"/"+(month_start+1)+"/"+year_start);
 
                         Calendar chosenStart = Calendar.getInstance();
                         chosenStart.set(year_start, month_start, day_start, hour_start, minute_start);
@@ -286,7 +286,7 @@ public class GraphActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v){
                         showDialog(CALENDAR_DIALOG_ID_END);
-                        endDateTextView.setText(day_end+"/"+(month_end+1)+"/"+year_end);
+                        //endDateTextView.setText(day_end+"/"+(month_end+1)+"/"+year_end);
 
                         Calendar chosenEnd = Calendar.getInstance();
                         chosenEnd.set(year_end, month_end, day_end, hour_end, minute_end);
@@ -313,7 +313,7 @@ public class GraphActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 showDialog(TIME_DIALOG_ID_START);
-                startTimeTextView.setText(hour_start+":"+minute_start+"hrs");
+
 
                 Calendar chosenStart = Calendar.getInstance();
                 chosenStart.set(year_start, month_start, day_start, hour_start, minute_start);
@@ -328,7 +328,7 @@ public class GraphActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 showDialog(TIME_DIALOG_ID_END);
-                endTimeTextView.setText(hour_end+":"+minute_end+"hrs");
+
 
                 Calendar chosenEnd = Calendar.getInstance();
                 chosenEnd.set(year_end, month_end, day_end, hour_end, minute_end);
@@ -360,6 +360,9 @@ public class GraphActivity extends AppCompatActivity {
             year_start = year;
             month_start = month;
             day_start = dayOfMonth;
+
+            // Set TextView textview_set_start_date to show the current chosen start date
+            startDateTextView.setText(day_start+"/"+(month_start+1)+"/"+year_start);
         }
     };
 
@@ -369,6 +372,9 @@ public class GraphActivity extends AppCompatActivity {
             year_end = year;
             month_end = month;
             day_end = dayOfMonth;
+
+            // Set TextView textview_set_end_date to show the current chosen end date
+            endDateTextView.setText(day_end+"/"+(month_end+1)+"/"+year_end);
         }
     };
 
@@ -377,6 +383,9 @@ public class GraphActivity extends AppCompatActivity {
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             hour_start = hourOfDay;
             minute_start = minute;
+
+            // Set TextView textview_set_start_time to show the current chosen start time
+            startTimeTextView.setText(hour_start+":"+minute_start+"hrs");
         }
     };
 
@@ -385,6 +394,9 @@ public class GraphActivity extends AppCompatActivity {
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             hour_end = hourOfDay;
             minute_end = minute;
+
+            // Set TextView textview_set_end_time to show the current chosen end time
+            endTimeTextView.setText(hour_end+":"+minute_end+"hrs");
         }
     };
 

@@ -62,7 +62,6 @@
                 <mehdi.sakout.fancybuttons.FancyButton
                     android:id="@+id/btn_set_start_time"
                     style="@style/TimeDatePicker"
-
                     fancy:fb_borderColor="#FFFFFF"
                     fancy:fb_borderWidth="1dp"
                     fancy:fb_defaultColor="@color/colorPrimary"
