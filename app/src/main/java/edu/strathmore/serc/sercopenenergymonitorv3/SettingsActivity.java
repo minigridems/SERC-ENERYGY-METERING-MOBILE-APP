@@ -40,6 +40,9 @@ import java.util.Set;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
+
+
+
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
@@ -141,6 +144,18 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         }
     }
 
+    // To enable up button on SettingsActivity to back to MainActivity
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                this.finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -196,8 +211,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference("example_list"));
 
 
-            /**
-             * Gets the MultiSelectListPreference and adds the String set stored in selected_station_list
+            /* Gets the MultiSelectListPreference and adds the String set stored in selected_station_list
              * to its entries and entry values. The selected_station_list string set is set on the
              * onCreate method of the in the main activity
              */

@@ -83,12 +83,12 @@
 
         It is based on the open-source system developed by <a href="https://openenergymonitor.org//">Open Energy Monitering</a>
         called the <a href="https://emoncms.org/">EmonCMS platform</a>. It is partly based on
-        <a href="https://learn.openenergymonitor.org/electricity-monitoring/other-software/AndroidAppPart1">this example app.</a>
+        <a href="https://learn.openenergymonitor.org/electricity-monitoring/other-software/AndroidAppPart1">this example app</a>
         on the Open Energy Monitor website.
     </string>
 
 
-    <string name="swipe_up_to_refresh">Swipe up to refresh</string>
+    <string name="swipe_down_to_refresh">Swipe down to refresh</string>
     <string name="pref_list_of_stations">Stations to Display</string>
     <string name="graph_title">Graph</string>
     <string name="draw_graph">Draw Graph</string>
