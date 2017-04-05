@@ -36,7 +36,12 @@ import java.util.List;
 import mehdi.sakout.fancybuttons.FancyButton;
 
 
-// Using MPAndroidChart to graph
+/**
+ * Note that this activity uses:
+ * MPAndroidChart to graph. (https://github.com/PhilJay/MPAndroidChart)
+ * Custom buttons called FancyButtons from https://github.com/medyo/fancybuttons as the buttons
+ */
+
 
 public class GraphActivity extends AppCompatActivity {
 
@@ -192,25 +197,34 @@ public class GraphActivity extends AppCompatActivity {
 
 
 
-            // For this call, the JSON consists of one large parent JSON Array with multiple children
-            // arrays each containing 2 data points. The time at position 0 and the power reading at
-            // position 1.
+            /* For this call, the JSON consists of one large parent JSON Array with multiple children
+             * arrays each containing 2 data points. The time at position 0 and the power reading at
+             * position 1 in the child arrays.
+             */
             Log.i("SERC Log", "Result in JSON: " + result);
             JSONArray parentJSON = new JSONArray(result);
             JSONArray childJSONArray;
 
+            // Array list of entry objects needed that will be used by the LineDataSet object
             List<Entry> entries = new ArrayList<>();
+            // Array list for the values of x (timestamp) and y (power values) coordinates of the graph
             ArrayList<Long> xAxis = new ArrayList<>();
             ArrayList<Double> yAxis = new ArrayList<>();
 
-
+            /**
+             * This cycles through each JSON array in the main array and adds the element in the first
+             * position (the timestamp in milliseconds) to xAxis array list and the second element in
+             * the array (the power reading ) to the yAxis array list. These 2 ArrayLists are then used
+             * to create an ArrayList of Entry objects stored in the variable entries (i.e. each Entry
+             * object contains the xAxis and yAxis values from one JSON array)
+             */
             // First checks if any data is being sent (i.e. it is not an empty array)
             if(!parentJSON.isNull(0)) {
                 Log.i("SERC Log", "Not null array: Response from API Call not null");
                 for (int i = 0; i < parentJSON.length(); i++) {
                     childJSONArray = parentJSON.getJSONArray(i);
                     for (int j = 0; j < childJSONArray.length(); j++) {
-                        // Check if value is null and adds 0 if so to avoid NullExceptions
+                        // Check if value is null and adds 0 if so to avoid NullException error
                         if (childJSONArray.get(1) == null) {
                             yAxis.add(0d);
                         } else {
@@ -222,34 +236,58 @@ public class GraphActivity extends AppCompatActivity {
                 }
 
                 Log.i("SERC Log", "Adding to entries: Changing the elements of the array into Entry objects");
+                // Since the xAxis and yAxis ArrayList are the same length either xAxis.size() or yAxis.size()
+                // could have been used
                 for (int i = 0; i < xAxis.size(); i++) {
                     entries.add(new Entry((float) xAxis.get(i), yAxis.get(i).floatValue()));
                 }
 
+                // The following steps are done to prepare for the new data on the graph
                 Log.i("SERC Log", "Clearing previous graph");
                 lineChart.clear();
-                lineChart.invalidate();
-                lineChart.fitScreen();
+                lineChart.invalidate(); //refresh the data
+                lineChart.fitScreen();  // set the zoom level back to the default
 
                 Log.i("SERC Log", "Styling xAxis");
+                // Gets the x axis
                 XAxis styledXAxis = lineChart.getXAxis();
+                // Sets the x axis labels to appear in the bottom
                 styledXAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+                // Sets the rotation angle of the x axis labels
                 styledXAxis.setLabelRotationAngle(45f);
 
+                /* DataSet objects hold data which belongs together, and allow individual styling
+                 * of that data. For example, below the color of the line set to RED and the drawing
+                 * of individual circles for each data point is turned off.
+                 */
                 Log.i("SERC Log", "Configuring the Data Set");
                 LineDataSet dataSet = new LineDataSet(entries, "Power");
                 dataSet.setColor(Color.RED);
                 dataSet.setDrawCircles(false);
 
+                /* As a last step, one needs to add the LineDataSet object (or objects) that were created
+                 * to a LineData object. This object holds all data that is represented by a Chart
+                 * instance and allows further styling.
+                 */
                 LineData lineData = new LineData(dataSet);
+
+                /**
+                 * This sets the styling of the x axis according to how it has been defined in the
+                 * DayAxisValueFormatter class. In this instance, the UNIX timestamp is converted to
+                 * human readable time in the DayAxisValueFormatter class
+                 */
                 styledXAxis.setValueFormatter(new DayAxisValueFormatter(lineChart));
 
+                // Sets the size and position of the graph's legend
                 Legend legend = lineChart.getLegend();
                 legend.setXEntrySpace(5f);
                 legend.setFormSize(5f);
                 legend.setPosition(Legend.LegendPosition.RIGHT_OF_CHART_INSIDE);
 
+                // Helps to clear the extra whitespace in the graph
                 lineChart.getDescription().setText("");
+
+                // Sets the LineData object to the LineChart object lineChart that is part of the view
                 lineChart.setData(lineData);
                 lineChart.notifyDataSetChanged();
 
@@ -263,7 +301,7 @@ public class GraphActivity extends AppCompatActivity {
     }
 
     public void showCalendarDialog(){
-        // FancyButtons and TextViews relating to the calendar
+        // Gets the FancyButtons and TextViews relating to the calendar
         FancyButton btnStartDate = (FancyButton) findViewById(R.id.btn_set_start_date);
         FancyButton btnEndDate = (FancyButton) findViewById(R.id.btn_set_end_date);
         startDateTextView = (TextView) findViewById(R.id.textview_set_start_date);
@@ -290,7 +328,7 @@ public class GraphActivity extends AppCompatActivity {
     }
 
     public void showTimeDialog(){
-        // FancyButtons and TextViews relating to time
+        // Gets the FancyButtons and TextViews relating to time
         FancyButton btnStartTime = (FancyButton) findViewById(R.id.btn_set_start_time);
         FancyButton btnEndTime = (FancyButton) findViewById(R.id.btn_set_end_time);
         startTimeTextView = (TextView) findViewById(R.id.textview_set_start_time);
@@ -312,6 +350,7 @@ public class GraphActivity extends AppCompatActivity {
         });
     }
 
+    // Chooses what dialog to display depending on the arguments
     @Override
     protected Dialog onCreateDialog(int id) {
         if (id == CALENDAR_DIALOG_ID_START) {
@@ -329,6 +368,7 @@ public class GraphActivity extends AppCompatActivity {
     protected DatePickerDialog.OnDateSetListener datePickerListenerStart = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+            // Sets the value chosen to the global variable (so as to update the link to be sent)
             year_start = year;
             month_start = month;
             day_start = dayOfMonth;
@@ -336,16 +376,13 @@ public class GraphActivity extends AppCompatActivity {
             // Set TextView textview_set_start_date to show the current chosen start date
             startDateTextView.setText(day_start+"/"+(month_start+1)+"/"+year_start);
 
-            // Setting the TextView textview_set_start_date to show the time chosen
+            // Setting the UNIX timestamp that will be sent in the link for startTime
             Calendar chosenStart = Calendar.getInstance();
             chosenStart.set(year_start, month_start, day_start, hour_start, minute_start);
             startTime = String.valueOf(chosenStart.getTimeInMillis());
             setLink();
             Log.i("Chosen UNIX Start Date", startTime);
-
             Log.i("Start and End Date", "Start: " + day_start+"/"+(month_start+1)+"/"+year_start + " End:" + day_end+"/"+(month_end+1)+"/"+year_end);
-            Log.i("Start and End Time", "Start: " + hour_start+":"+minute_start+"hrs" + " End:" + hour_end+":"+minute_end+"hrs");
-
 
         }
     };
@@ -353,6 +390,7 @@ public class GraphActivity extends AppCompatActivity {
     protected DatePickerDialog.OnDateSetListener datePickerListenerEnd = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+            // Sets the value chosen to the global variable (so as to update the link to be sent)
             year_end = year;
             month_end = month;
             day_end = dayOfMonth;
@@ -360,27 +398,27 @@ public class GraphActivity extends AppCompatActivity {
             // Set TextView textview_set_end_date to show the current chosen end date
             endDateTextView.setText(day_end+"/"+(month_end+1)+"/"+year_end);
 
+            // Setting the UNIX timestamp that will be sent in the link for endTime
             Calendar chosenEnd = Calendar.getInstance();
             chosenEnd.set(year_end, month_end, day_end, hour_end, minute_end);
             endTime = String.valueOf(chosenEnd.getTimeInMillis());
             setLink();
             Log.i("Chosen UNIX End Date", endTime);
-
             Log.i("Start and End Date", "Start: " + day_start+"/"+(month_start+1)+"/"+year_start + " End:" + day_end+"/"+(month_end+1)+"/"+year_end);
-            Log.i("Start and End Time", "Start: " + hour_start+":"+minute_start+"hrs" + " End:" + hour_end+":"+minute_end+"hrs");
         }
     };
 
     protected TimePickerDialog.OnTimeSetListener timePickerListenerStart = new TimePickerDialog.OnTimeSetListener() {
         @Override
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            // Sets the value chosen to the global variable (so as to update the link to be sent)
             hour_start = hourOfDay;
             minute_start = minute;
 
             // Set TextView textview_set_start_time to show the current chosen start time
             startTimeTextView.setText(hour_start+":"+minute_start+"hrs");
 
-
+            // Setting the UNIX timestamp that will be sent in the link for startTime
             Calendar chosenStart = Calendar.getInstance();
             chosenStart.set(year_start, month_start, day_start, hour_start, minute_start);
             startTime = String.valueOf(chosenStart.getTimeInMillis());
@@ -393,12 +431,14 @@ public class GraphActivity extends AppCompatActivity {
     protected TimePickerDialog.OnTimeSetListener timePickerListenerEnd = new TimePickerDialog.OnTimeSetListener() {
         @Override
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            // Sets the value chosen to the global variable (so as to update the link to be sent)
             hour_end = hourOfDay;
             minute_end = minute;
 
             // Set TextView textview_set_end_time to show the current chosen end time
             endTimeTextView.setText(hour_end+":"+minute_end+"hrs");
 
+            // Setting the UNIX timestamp that will be sent in the link for endTime
             Calendar chosenEnd = Calendar.getInstance();
             chosenEnd.set(year_end, month_end, day_end, hour_end, minute_end);
             endTime = String.valueOf(chosenEnd.getTimeInMillis());
@@ -408,7 +448,7 @@ public class GraphActivity extends AppCompatActivity {
         }
     };
 
-    // Method that updates the link with the latest variables in its global variables
+    // Method that updates the link with the latest variables set by its global variables
     private void setLink(){
         link = ROOT_LINK + String.valueOf(stationID) + "&start=" + startTime + "&end=" + endTime
                 + "&interval=" + INTERVAL + "&skipmissing=1&limitinterval=1&apikey=" + API_KEY;
@@ -416,7 +456,7 @@ public class GraphActivity extends AppCompatActivity {
     }
 
 
-
+    // AsyncTask class that modifys the global variable result
     private class CmsApi extends AsyncTask<String, Void, String> {
 
 
