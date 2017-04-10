@@ -1,10 +1,12 @@
 package edu.strathmore.serc.sercopenenergymonitorv3;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -13,13 +15,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -84,6 +89,53 @@ public class MainActivity extends AppCompatActivity {
                 // Start GraphActivity
                 startActivity(graphIntent);
 
+            }
+        });
+
+
+        /**
+         * This is the listener for when a user long clicks/presses on an item in the listview.
+         * This opens a Dialog showing all the information stored for the that RecordingStation object
+         */
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                AlertDialog.Builder  alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                alertDialogBuilder.setTitle("Station Details");
+                alertDialogBuilder.setIcon(R.mipmap.ic_launcher_serc);
+                alertDialogBuilder.setPositiveButton("Ok", null);
+
+                Date currentTime = new Date(adapter.getItem(position).getStationTime()*1000);
+                SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy h:mm a");
+                String stationTime = sdf.format(currentTime);
+                CharSequence[] stationDetails = {
+                        "Station ID: " + String.valueOf(adapter.getItem(position).getStationID()),
+                        "Station Name: " + adapter.getItem(position).getStationName(),
+                        "Station Tag: " + adapter.getItem(position).getStationTag(),
+                        "Current Reading: " + String.valueOf(adapter.getItem(position).getStationValueReading()),
+                        "Current Time: " + stationTime};
+
+                alertDialogBuilder.setItems(stationDetails, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == 0){
+                            Toast.makeText(getBaseContext(), "The ID sent from the EmonCMS platform for this particular station", Toast.LENGTH_SHORT);
+                        }
+
+                    }
+                });
+
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+
+                /* This returns a boolean to indicate whether you have consumed the event and it
+                 * should not be carried further. That is, return true to indicate that you have
+                 * handled the event and it should stop here; return false if you have not handled
+                 * it and/or the event should continue to any other on-click listeners.
+                 * If false is returned, OnItemClickListener will be triggered resulting in GraphActivity
+                 * being opened
+                 */
+                return true;
             }
         });
 

@@ -11,7 +11,7 @@ public class RecordingStation {
     private int mStationID;
     private String mStationName;
     private String mStationTag;
-    private int mStationTime;
+    private long mStationTime;
     private int mStationValueReading;
 
 
@@ -36,7 +36,7 @@ public class RecordingStation {
         return mStationTag;
     }
 
-    public int getStationTime(){
+    public long getStationTime(){
         return mStationTime;
     }
 
