@@ -1,14 +1,28 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'SERCOpenV1'
+            keyPassword 'SERCOpenV1pass'
+            storeFile file('C:/Users/Bob/Desktop/serc_pass.jks')
+            storePassword 'TheStorePassIsSERCOpenV1pass'
+        }
+        config1 {
+            keyAlias 'SERCOpenV1'
+            keyPassword 'SERCOpenV1pass'
+            storeFile file('C:/Users/Bob/serc_sign.jks')
+            storePassword 'SERCOpenV1pass'
+        }
+    }
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "edu.strathmore.serc.sercopenenergymonitorv3"
         minSdkVersion 19
         targetSdkVersion 21
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.2-Initial alpha release"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
