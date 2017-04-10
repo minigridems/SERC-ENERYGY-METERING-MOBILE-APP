@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,6 +24,7 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -62,6 +64,16 @@ public class MainActivity extends AppCompatActivity {
 
         // Sublist of recording stations as chosen in settings
         ArrayList<RecordingStation> recordingStationsForAdapter = getRecordingStationInSettings(recordingStations);
+
+        // Arranges the Stations alphabetically by tag name
+        if (recordingStationsForAdapter.size()>1){
+            Collections.sort(recordingStationsForAdapter, new Comparator<RecordingStation>() {
+                @Override
+                public int compare(RecordingStation o1, RecordingStation o2) {
+                    return o1.getStationTag().compareTo(o2.getStationTag());
+                }
+            });
+        }
 
 
         // Setting the RecordingStationAdapter<RecordingStation> to the ListView to display
@@ -117,7 +129,9 @@ public class MainActivity extends AppCompatActivity {
                 alertDialogBuilder.setItems(stationDetails, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        
+                        if (which == 1){
+                            Toast.makeText(getBaseContext(), "The ID sent from the EmonCMS platform for this particular station", Toast.LENGTH_SHORT);
+                        }
 
                     }
                 });
@@ -183,6 +197,16 @@ public class MainActivity extends AppCompatActivity {
 
         // Sublist of recording stations as chosen in settings
         ArrayList<RecordingStation> recordingStationsForAdapter = getRecordingStationInSettings(recordingStationsList);
+
+        // Arranges the Stations alphabetically by tag name
+        if (recordingStationsForAdapter.size()>1){
+            Collections.sort(recordingStationsForAdapter, new Comparator<RecordingStation>() {
+                @Override
+                public int compare(RecordingStation o1, RecordingStation o2) {
+                    return o1.getStationTag().compareTo(o2.getStationTag());
+                }
+            });
+        }
 
         // Clear the adapter and load up new content to adapter
         adapter.clear();
