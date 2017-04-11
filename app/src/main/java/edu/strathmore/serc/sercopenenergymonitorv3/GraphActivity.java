@@ -196,6 +196,7 @@ public class GraphActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 ScrollView scrollView = (ScrollView) findViewById(R.id.scroll_view);
+
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN: {
                         scrollView.requestDisallowInterceptTouchEvent(true);
