@@ -9,8 +9,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.DatePicker;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -18,6 +20,7 @@ import android.widget.Toast;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -80,6 +83,9 @@ public class GraphActivity extends AppCompatActivity {
     // Needed for time dialog
     private TextView startTimeTextView, endTimeTextView;
     private int hour_start, hour_end, minute_start, minute_end;
+
+
+    LineChart lineChart;
 
 
     @Override
@@ -184,11 +190,57 @@ public class GraphActivity extends AppCompatActivity {
             }
         });
 
+
+        lineChart = (LineChart) findViewById(R.id.graph);
+        lineChart.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                ScrollView scrollView = (ScrollView) findViewById(R.id.scroll_view);
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN: {
+                        scrollView.requestDisallowInterceptTouchEvent(true);
+                        break;
+                    }
+                    case MotionEvent.ACTION_CANCEL:
+                    case MotionEvent.ACTION_UP: {
+                        scrollView.requestDisallowInterceptTouchEvent(false);
+                        break;
+                    }
+
+
+                }
+
+                return false;
+            }
+        });
+
+        // OnClickListener for the reset zoom button
+        FancyButton resetZoomBtn = (FancyButton) findViewById(R.id.btn_reset_zoom);
+        resetZoomBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                lineChart.fitScreen();
+            }
+        });
+
+        // OnClickListener for the Back to top button
+        FancyButton backToTopBtn = (FancyButton) findViewById(R.id.btn_go_up);
+        backToTopBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ScrollView scrollView = (ScrollView) findViewById(R.id.scroll_view);
+                scrollView.fullScroll(View.FOCUS_UP);
+
+            }
+        });
+
+
     }
 
     // Method for drawing the graph. Requires the HTTP link to the JSON file
     private void drawGraph(String graphLink){
-        LineChart lineChart = (LineChart) findViewById(R.id.graph);
+        lineChart = (LineChart) findViewById(R.id.graph);
+        ScrollView scrollView = (ScrollView) findViewById(R.id.scroll_view);
 
         try {
 
@@ -256,6 +308,10 @@ public class GraphActivity extends AppCompatActivity {
                 // Sets the rotation angle of the x axis labels
                 styledXAxis.setLabelRotationAngle(45f);
 
+                // Removing right Y Axis labels
+                YAxis rightYAxis = lineChart.getAxisRight();
+                rightYAxis.setDrawLabels(false);
+
                 /* DataSet objects hold data which belongs together, and allow individual styling
                  * of that data. For example, below the color of the line set to RED and the drawing
                  * of individual circles for each data point is turned off.
@@ -293,6 +349,7 @@ public class GraphActivity extends AppCompatActivity {
 
             }
             lineChart.invalidate(); //refresh
+            scrollView.fullScroll(View.FOCUS_DOWN);
 
         } catch (JSONException e) {
             e.printStackTrace();

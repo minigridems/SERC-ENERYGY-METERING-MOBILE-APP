@@ -2,6 +2,14 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:fancy="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scroll_view"
+
+    android:fadeScrollbars="false"
+    android:scrollbarThumbVertical="@drawable/vertical_scrollview_thumb"
+    android:scrollbarTrackVertical="@drawable/vertical_scrollview_track"
+    android:scrollbarSize="16dp"
+    android:scrollbarStyle="outsideOverlay"
+
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="edu.strathmore.serc.sercopenenergymonitorv3.GraphActivity">
@@ -9,7 +17,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        >
 
         <TextView
             android:id="@+id/graph_title"
@@ -164,11 +173,54 @@
             android:id="@+id/graph"
             android:layout_width="match_parent"
             android:layout_height="550dp"
-            android:layout_marginBottom="16dp">
+            android:layout_marginRight="5dp">
 
 
         </com.github.mikephil.charting.charts.LineChart>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+           >
+
+            <mehdi.sakout.fancybuttons.FancyButton
+                android:id="@+id/btn_go_up"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+
+                fancy:fb_borderColor="#FFFFFF"
+                fancy:fb_borderWidth="1dp"
+                fancy:fb_defaultColor="@color/colorPrimary"
+                fancy:fb_focusColor="#9bd823"
+                fancy:fb_radius="10dp"
+
+                fancy:fb_text="Back to Top"/>
+
+            <mehdi.sakout.fancybuttons.FancyButton
+                android:id="@+id/btn_reset_zoom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+
+
+                fancy:fb_borderColor="#FFFFFF"
+                fancy:fb_borderWidth="1dp"
+                fancy:fb_defaultColor="@color/colorPrimary"
+                fancy:fb_focusColor="#9bd823"
+                fancy:fb_radius="10dp"
+
+                fancy:fb_text="Reset Zoom "/>
+
+        </LinearLayout>
 
 
     </LinearLayout>

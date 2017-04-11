@@ -6,6 +6,7 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -49,7 +50,14 @@
 
     </style>
 
+    <style name="CustomScrollView">
+        <item name="android:scrollbarAlwaysDrawVerticalTrack">true</item>
+        <item name="android:scrollbarStyle">outsideOverlay</item>
+        <item name="android:scrollbars">vertical</item>
+        <item name="android:fadeScrollbars">false</item>
 
+        <!--<item name="android:scrollbarThumbVertical">@drawable/scroll_bar1</item>-->
+    </style>
 
 
     </resources>
