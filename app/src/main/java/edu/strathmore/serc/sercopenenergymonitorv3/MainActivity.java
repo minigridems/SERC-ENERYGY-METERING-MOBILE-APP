@@ -1,19 +1,26 @@
 package edu.strathmore.serc.sercopenenergymonitorv3;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -44,6 +51,71 @@ public class MainActivity extends AppCompatActivity {
     private RecordingStationAdapter adapter;
 
 
+    /**
+     * This Fragment class defines the pop-up that shows up if an API key is not found/or provided by
+     * the user
+     */
+
+    public static class APIKeyDialog extends DialogFragment {
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+            // Show soft keyboard automatically
+            getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        }
+
+        private EditText apiKeyInput;
+
+        // Empty constructor required for DialogFragment
+        public APIKeyDialog(){}
+
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            //return super.onCreateDialog(savedInstanceState);
+
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+            // Get the layout inflater
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+
+            // Inflate and set the layout for the dialog
+            // Pass null as the parent view because its going in the dialog layout
+            View view = inflater.inflate(R.layout.dialog_login, null);
+            dialogBuilder.setView(view);
+            // Get the edit text view from the xml
+            apiKeyInput = (EditText) view.findViewById(R.id.dialog_edit_text_api_key);
+            // Makes the EditText box to be highlighted
+            apiKeyInput.requestFocus();
+
+
+            //Add Action button
+            dialogBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    apiKey = apiKeyInput.getText().toString();
+
+                    // Save settings
+                    SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    SharedPreferences.Editor editor = appSettings.edit();
+                    editor.putString("api_key_edit", apiKey);
+                    editor.apply();
+
+                }
+            });
+
+            dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    APIKeyDialog.this.getDialog().cancel();
+                }
+            });
+
+            return dialogBuilder.create();
+        }
+    }
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Log start of onCreate method
@@ -55,6 +127,52 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
+
+        SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
+        apiKey = appSettings.getString("api_key_edit", null);
+
+        if (apiKey==null){
+
+            APIKeyDialog apiKeyDialog = new APIKeyDialog();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            apiKeyDialog.show(ft, "fragment_api_key");
+
+            }
+
+        APIKeyDialog apiKeyDialog = new APIKeyDialog();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        //apiKeyDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        apiKeyDialog.show(ft, "fragment_api_key");
+
+
+
+      /*  //Get API key from settings
+        SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
+        apiKey = appSettings.getString("api_key_edit", null);
+
+        if (apiKey==null){
+
+            AlertDialog.Builder  alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+            alertDialogBuilder.setTitle("Not API Key found");
+            alertDialogBuilder.setIcon(R.mipmap.ic_launcher_serc);
+            alertDialogBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+
+
+
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
+
+        }*/
+
+
+
 
 
         // Create an ArrayList of RecordingStation Objects with the variable name recordingStations

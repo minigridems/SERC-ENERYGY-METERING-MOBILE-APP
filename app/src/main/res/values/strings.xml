@@ -100,6 +100,10 @@
     <string name="graph_title">Graph</string>
     <string name="draw_graph">Draw Graph</string>
     <string name="pref_multi_list_summary">Select the Recording Stations to be displayed in the main screen</string>
+    <string name="pref_edit_api_key">Edit API Key</string>
+    <string name="api_key_error_desc">The API key is needed in order to send and receive data from the EmonCMS platform.
+        It can be found by loging into your EmonCMS dashboard and going to \'My Account\' in the setup tab.
+    </string>
 
 
     <!--Custom List for Settings -->

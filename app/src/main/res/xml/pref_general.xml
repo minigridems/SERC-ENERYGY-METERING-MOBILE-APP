@@ -41,6 +41,16 @@
         android:title="@string/pref_title_check_change_in_data"
         />
 
+    <EditTextPreference
+        android:defaultValue=" "
+        android:inputType="textNoSuggestions"
+        android:key="api_key_edit"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:title="@string/pref_edit_api_key"
+
+        />
+
 
 
 

@@ -195,6 +195,8 @@ public class GraphActivity extends AppCompatActivity {
         lineChart.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+
+
                 ScrollView scrollView = (ScrollView) findViewById(R.id.scroll_view);
 
                 switch (event.getAction()) {
