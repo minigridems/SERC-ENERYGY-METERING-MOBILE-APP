@@ -42,7 +42,7 @@
         />
 
     <EditTextPreference
-        android:defaultValue=" "
+        android:defaultValue="0"
         android:inputType="textNoSuggestions"
         android:key="api_key_edit"
         android:maxLines="1"
