@@ -41,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
 
     //For the call to be made to the CMS API
     private static String rootLinkAddress = "https://serc.strathmore.edu";
-    private static String apiKey = "36ec19e2a135f22b50883d555eea2114";
+    private String apiKey;
+    //apiKey = "36ec19e2a135f22b50883d555eea2114";
 
     // For the SwipeRefreshLayout used both in the onCreate and refresh method
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -92,12 +93,19 @@ public class MainActivity extends AppCompatActivity {
             dialogBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    apiKey = apiKeyInput.getText().toString();
+                    String userInput = apiKeyInput.getText().toString();
+
+                    if (userInput.contentEquals("")) {
+                        Toast.makeText(getContext(), "No API Key saved. Please add it in settings", Toast.LENGTH_LONG).show();
+                    } else
+                    {
+                        Toast.makeText(getContext(), "API key " + userInput + " saved in Settings", Toast.LENGTH_LONG).show();
+                    }
 
                     // Save settings
                     SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(getActivity());
                     SharedPreferences.Editor editor = appSettings.edit();
-                    editor.putString("api_key_edit", apiKey);
+                    editor.putString("api_key_edit", userInput);
                     editor.apply();
 
                 }
@@ -106,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
             dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    Toast.makeText(getContext(), "No API Key saved. Please add it in settings", Toast.LENGTH_LONG).show();
                     APIKeyDialog.this.getDialog().cancel();
                 }
             });
@@ -129,47 +138,33 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
-
+        // Gets the API key from settings (Shared Preferences)
         SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
         apiKey = appSettings.getString("api_key_edit", null);
 
-        if (apiKey==null){
+        /**
+         * Checks the API key is not empty/null(such as the first time a user logs in) or blank (for
+         * instance if a user clicked cancel when the user was first prompted)
+         */
+        if (apiKey==null || apiKey.contentEquals("")){
 
             APIKeyDialog apiKeyDialog = new APIKeyDialog();
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             apiKeyDialog.show(ft, "fragment_api_key");
 
-            }
+            /**
+             * Since the APIKeyDialog will save the API key in the shared preferences once the user
+             * clicks the 'ok' button. If the user clicks cancel or enters a null string, the api key
+             * will be null from resulting in an error when the link is sent (cannot concatenate strings
+             * will a null object). As such an empty String "" is put as the default below
+             */
+            apiKey = appSettings.getString("api_key_edit", "");
+
+        }
 
         APIKeyDialog apiKeyDialog = new APIKeyDialog();
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        //apiKeyDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         apiKeyDialog.show(ft, "fragment_api_key");
-
-
-
-      /*  //Get API key from settings
-        SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
-        apiKey = appSettings.getString("api_key_edit", null);
-
-        if (apiKey==null){
-
-            AlertDialog.Builder  alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
-            alertDialogBuilder.setTitle("Not API Key found");
-            alertDialogBuilder.setIcon(R.mipmap.ic_launcher_serc);
-            alertDialogBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                }
-            });
-
-
-
-            AlertDialog alertDialog = alertDialogBuilder.create();
-            alertDialog.show();
-
-        }*/
 
 
 
@@ -342,6 +337,9 @@ public class MainActivity extends AppCompatActivity {
 
         String result;
         try {
+            // Get API key from settings
+            SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
+            apiKey = appSettings.getString("api_key_edit", "");
             // Call CmsApiCall using the MainActivity as the context. The result is the JSON file in
             // form of a continuous String.
             result = new CmsApiCall(MainActivity.this).execute(rootLinkAddress+"/emoncms/feed/list.json&apikey="+apiKey).get();
