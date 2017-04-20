@@ -4,9 +4,11 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -245,6 +247,11 @@ public class GraphActivity extends AppCompatActivity {
         lineChart = (LineChart) findViewById(R.id.graph);
         ScrollView scrollView = (ScrollView) findViewById(R.id.scroll_view);
 
+        // Gets the amount of time before Graph is zeroed from settings
+        SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
+        float minutesInactivity = Float.valueOf(appSettings.getString("graph_zero_listpref", "-1"));
+
+
         try {
 
             // CmsApiCall returns the JSON in form of a continuous string
@@ -274,15 +281,19 @@ public class GraphActivity extends AppCompatActivity {
              * object contains the xAxis and yAxis values from one JSON array)
              */
             // First checks if any data is being sent (i.e. it is not an empty array)
+
             if(!parentJSON.isNull(0)) {
                 Log.i("SERC Log", "Not null array: Response from API Call not null");
                 for (int i = 0; i < parentJSON.length(); i++) {
                     childJSONArray = parentJSON.getJSONArray(i);
+
                     for (int j = 0; j < childJSONArray.length(); j++) {
                         // Check if value is null and adds 0 if so to avoid NullException error
                         if (childJSONArray.get(1) == null) {
                             yAxis.add(0d);
+
                         } else {
+
                             xAxis.add(childJSONArray.getLong(0));
                             yAxis.add(childJSONArray.getDouble(1));
 
@@ -293,9 +304,50 @@ public class GraphActivity extends AppCompatActivity {
                 Log.i("SERC Log", "Adding to entries: Changing the elements of the array into Entry objects");
                 // Since the xAxis and yAxis ArrayList are the same length either xAxis.size() or yAxis.size()
                 // could have been used
-                for (int i = 0; i < xAxis.size(); i++) {
-                    entries.add(new Entry((float) xAxis.get(i), yAxis.get(i).floatValue()));
+                Float threshold = minutesInactivity * 60000f; //Converts minutes to milliseconds
+                long previousX = Long.valueOf(startTime);
+                Long absTimeDiff;
+                Long zeroOffset = Long.valueOf(1000);
+                if (threshold > 0f) {
+                    for (int i = 0; i < xAxis.size(); i++) {
+                        Long currentX = xAxis.get(i);
+                        absTimeDiff = Math.abs(currentX - previousX);
+
+
+                        if(absTimeDiff>threshold){
+
+                            entries.add(new Entry((float) (previousX+zeroOffset), 0f));
+                            entries.add(new Entry((float) (currentX-zeroOffset), 0f));
+                            entries.add(new Entry((float) xAxis.get(i), yAxis.get(i).floatValue()));
+
+                        } else{
+                            entries.add(new Entry((float) xAxis.get(i), yAxis.get(i).floatValue()));
+                        }
+
+
+                        previousX = currentX;
+                    }
+                } else{
+                    for (int i = 0; i < xAxis.size(); i++) {
+                        entries.add(new Entry((float) xAxis.get(i), yAxis.get(i).floatValue()));
+                    }
                 }
+
+               /* float previousX = Float.valueOf(startTime);
+                boolean addedZeroPoint = false;
+
+                for (int i = 0; i < entries.size(); i++) {
+
+                    Float currentX = entries.get(i).getX();
+                    Float absTimeDiff = Math.abs(currentX - previousX);
+                    previousX = currentX;
+
+                    if (absTimeDiff > threshold){
+                        entries.add(new Entry(currentX-1000f), 0f);
+                    }
+
+                }*/
+
 
                 // The following steps are done to prepare for the new data on the graph
                 Log.i("SERC Log", "Clearing previous graph");

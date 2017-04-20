@@ -51,80 +51,6 @@ public class MainActivity extends AppCompatActivity {
     // Needs to be global as it is used both in the onCreate and refresh method
     private RecordingStationAdapter adapter;
 
-
-    /**
-     * This Fragment class defines the pop-up that shows up if an API key is not found/or provided by
-     * the user
-     */
-
-    public static class APIKeyDialog extends DialogFragment {
-        @Override
-        public void onActivityCreated(Bundle savedInstanceState) {
-            super.onActivityCreated(savedInstanceState);
-            // Show soft keyboard automatically
-            getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        }
-
-        private EditText apiKeyInput;
-
-        // Empty constructor required for DialogFragment
-        public APIKeyDialog(){}
-
-        @NonNull
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            //return super.onCreateDialog(savedInstanceState);
-
-            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
-            // Get the layout inflater
-            LayoutInflater inflater = getActivity().getLayoutInflater();
-
-            // Inflate and set the layout for the dialog
-            // Pass null as the parent view because its going in the dialog layout
-            View view = inflater.inflate(R.layout.dialog_login, null);
-            dialogBuilder.setView(view);
-            // Get the edit text view from the xml
-            apiKeyInput = (EditText) view.findViewById(R.id.dialog_edit_text_api_key);
-            // Makes the EditText box to be highlighted
-            apiKeyInput.requestFocus();
-
-
-            //Add Action button
-            dialogBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    String userInput = apiKeyInput.getText().toString();
-
-                    if (userInput.contentEquals("")) {
-                        Toast.makeText(getContext(), "No API Key saved. Please add it in settings", Toast.LENGTH_LONG).show();
-                    } else
-                    {
-                        Toast.makeText(getContext(), "API key " + userInput + " saved in Settings", Toast.LENGTH_LONG).show();
-                    }
-
-                    // Save settings
-                    SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                    SharedPreferences.Editor editor = appSettings.edit();
-                    editor.putString("api_key_edit", userInput);
-                    editor.apply();
-
-                }
-            });
-
-            dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    Toast.makeText(getContext(), "No API Key saved. Please add it in settings", Toast.LENGTH_LONG).show();
-                    APIKeyDialog.this.getDialog().cancel();
-                }
-            });
-
-            return dialogBuilder.create();
-        }
-    }
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Log start of onCreate method
@@ -140,9 +66,14 @@ public class MainActivity extends AppCompatActivity {
 
         // Gets the API key from settings (Shared Preferences)
         SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
+
+        SharedPreferences.Editor editor = appSettings.edit();
+        editor.putString("api_key_edit", "36ec19e2a135f22b50883d555eea2114");
+        editor.apply();
+
         apiKey = appSettings.getString("api_key_edit", null);
 
-        /**
+        /*
          * Checks the API key is not empty/null(such as the first time a user logs in) or blank (for
          * instance if a user clicked cancel when the user was first prompted)
          */
@@ -152,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             apiKeyDialog.show(ft, "fragment_api_key");
 
-            /**
+            /*
              * Since the APIKeyDialog will save the API key in the shared preferences once the user
              * clicks the 'ok' button. If the user clicks cancel or enters a null string, the api key
              * will be null from resulting in an error when the link is sent (cannot concatenate strings
@@ -161,12 +92,6 @@ public class MainActivity extends AppCompatActivity {
             apiKey = appSettings.getString("api_key_edit", "");
 
         }
-
-        APIKeyDialog apiKeyDialog = new APIKeyDialog();
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        apiKeyDialog.show(ft, "fragment_api_key");
-
-
 
 
 
@@ -243,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (which == 1){
-                            Toast.makeText(getBaseContext(), "The ID sent from the EmonCMS platform for this particular station", Toast.LENGTH_SHORT);
+                            Toast.makeText(getBaseContext(), "The ID sent from the EmonCMS platform for this particular station", Toast.LENGTH_SHORT).show();
                         }
 
                     }
@@ -303,6 +228,75 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    // This Fragment class defines the pop-up that shows up if an API key is not found/or provided by the user
+    public static class APIKeyDialog extends DialogFragment {
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+            // Show soft keyboard automatically
+            if (getDialog() != null) {
+                getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+            }
+        }
+
+        private EditText apiKeyInput;
+
+        // Empty constructor required for DialogFragment
+        public APIKeyDialog(){}
+
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+            // Get the layout inflater
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+
+            // Inflate and set the layout for the dialog
+            // Pass null as the parent view because its going in the dialog layout
+            View view = inflater.inflate(R.layout.dialog_login, null);
+            dialogBuilder.setView(view);
+            // Get the edit text view from the xml
+            apiKeyInput = (EditText) view.findViewById(R.id.dialog_edit_text_api_key);
+            // Makes the EditText box to be highlighted
+            apiKeyInput.requestFocus();
+
+
+            //Add Action button
+            dialogBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String userInput = apiKeyInput.getText().toString();
+
+                    if (userInput.contentEquals("")) {
+                        Toast.makeText(getContext(), "No API Key saved. Please add it in settings", Toast.LENGTH_LONG).show();
+                    } else
+                    {
+                        Toast.makeText(getContext(), "API key " + userInput + " saved in Settings", Toast.LENGTH_LONG).show();
+                    }
+
+                    // Save settings
+                    SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    SharedPreferences.Editor editor = appSettings.edit();
+                    editor.putString("api_key_edit", userInput);
+                    editor.apply();
+
+                }
+            });
+
+            dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Toast.makeText(getContext(), "No API Key saved. Please add it in settings", Toast.LENGTH_LONG).show();
+                    APIKeyDialog.this.getDialog().cancel();
+                }
+            });
+
+            return dialogBuilder.create();
+        }
     }
 
     //Method to refresh content. Called when user swipes up to refresh
@@ -401,6 +395,7 @@ public class MainActivity extends AppCompatActivity {
         return recordingStations;
     }
 
+    // Method that checks which of the statations from the full list is in settings
     private ArrayList<RecordingStation> getRecordingStationInSettings(ArrayList<RecordingStation> recordingStations){
         /*
          * This function takes in an array list of the recording stations and returns an array list

@@ -209,6 +209,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // guidelines.
             //bindPreferenceSummaryToValue(findPreference("example_text"));
             bindPreferenceSummaryToValue(findPreference("example_list"));
+            //bindPreferenceSummaryToValue(findPreference("graph_zero_listpref"));
 
 
             /* Gets the MultiSelectListPreference and adds the String set stored in selected_station_list
