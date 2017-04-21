@@ -302,13 +302,18 @@ public class GraphActivity extends AppCompatActivity {
                 }
 
                 Log.i("SERC Log", "Adding to entries: Changing the elements of the array into Entry objects");
-                // Since the xAxis and yAxis ArrayList are the same length either xAxis.size() or yAxis.size()
-                // could have been used
+                /**
+                 * This is used to add the x and y axis values to as Entry objects to an ArrayList.
+                 * It also 'zeros' the graph by adding 0 as y axis reading just before and after the
+                 * the 2 x axis values the are further apart than the threshold value
+                 */
                 Float threshold = minutesInactivity * 60000f; //Converts minutes to milliseconds
                 long previousX = Long.valueOf(startTime);
                 Long absTimeDiff;
                 Long zeroOffset = Long.valueOf(1000);
                 if (threshold > 0f) {
+                    // Since the xAxis and yAxis ArrayList are the same length either xAxis.size() or yAxis.size()
+                    // could have been used
                     for (int i = 0; i < xAxis.size(); i++) {
                         Long currentX = xAxis.get(i);
                         absTimeDiff = Math.abs(currentX - previousX);
@@ -333,20 +338,7 @@ public class GraphActivity extends AppCompatActivity {
                     }
                 }
 
-               /* float previousX = Float.valueOf(startTime);
-                boolean addedZeroPoint = false;
 
-                for (int i = 0; i < entries.size(); i++) {
-
-                    Float currentX = entries.get(i).getX();
-                    Float absTimeDiff = Math.abs(currentX - previousX);
-                    previousX = currentX;
-
-                    if (absTimeDiff > threshold){
-                        entries.add(new Entry(currentX-1000f), 0f);
-                    }
-
-                }*/
 
 
                 // The following steps are done to prepare for the new data on the graph
@@ -358,22 +350,65 @@ public class GraphActivity extends AppCompatActivity {
                 Log.i("SERC Log", "Styling xAxis");
                 // Gets the x axis
                 XAxis styledXAxis = lineChart.getXAxis();
-                // Sets the x axis labels to appear in the bottom
-                styledXAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+                // Sets the x axis labels to appear in the according to settings
+                int xAxisLabelPosition = Integer.valueOf(appSettings.getString("graph_x_axis_position_listpref","1"));
+                switch (xAxisLabelPosition){
+                    case 1:
+                        styledXAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+                        break;
+                    case 2:
+                        styledXAxis.setPosition(XAxis.XAxisPosition.TOP);
+                        break;
+                    case 3:
+                        styledXAxis.setPosition(XAxis.XAxisPosition.BOTH_SIDED);
+                        break;
+
+                }
+
+
                 // Sets the rotation angle of the x axis labels
                 styledXAxis.setLabelRotationAngle(45f);
 
                 // Removing right Y Axis labels
                 YAxis rightYAxis = lineChart.getAxisRight();
-                rightYAxis.setDrawLabels(false);
+                // Get from settings
+                boolean allowRightYAxisLabel = appSettings.getBoolean("graph_y_axis_both_sides", false);
+                rightYAxis.setDrawLabels(allowRightYAxisLabel);
 
                 /* DataSet objects hold data which belongs together, and allow individual styling
-                 * of that data. For example, below the color of the line set to RED and the drawing
-                 * of individual circles for each data point is turned off.
+                 * of that data. For example, below the color of the line set to RED (by default) and
+                 * the drawing of individual circles for each data point is turned off.
                  */
                 Log.i("SERC Log", "Configuring the Data Set");
                 LineDataSet dataSet = new LineDataSet(entries, "Power");
-                dataSet.setColor(Color.RED);
+
+                // Getting the color of the line and setting it
+                int graphColor = Integer.valueOf(appSettings.getString("graph_line_color_listpref", "1"));
+                switch (graphColor){
+                    case 1:
+                        dataSet.setColor(Color.RED);
+                        break;
+                    case 2:
+                        dataSet.setColor(Color.CYAN);
+                        break;
+                    case 3:
+                        dataSet.setColor(Color.BLACK);
+                        break;
+                    case 4:
+                        dataSet.setColor(Color.BLUE);
+                        break;
+                    case 5:
+                        dataSet.setColor(Color.GREEN);
+                        break;
+                    case 6:
+                        dataSet.setColor(Color.MAGENTA);
+                        break;
+                    case 7:
+                        dataSet.setColor(Color.YELLOW);
+                        break;
+
+                }
+
                 dataSet.setDrawCircles(false);
 
                 /* As a last step, one needs to add the LineDataSet object (or objects) that were created

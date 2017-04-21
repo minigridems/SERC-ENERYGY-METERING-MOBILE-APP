@@ -12,9 +12,9 @@
         android:padding="16dp">
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:src="@android:drawable/ic_dialog_alert"/>
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/exclamation_circle"/>
 
 
 
@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginLeft="16dp"
-            android:text="Read API Key Not found"
+            android:text="@string/root_link_dialog_title"
             android:gravity="center"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -42,7 +42,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:text="@string/api_key_error_desc"/>
+        android:text="@string/root_link_error_desc"/>
 
 
 
@@ -51,9 +51,9 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/dialog_edit_text_api_key"
+        android:id="@+id/dialog_edit_text_root_link"
         android:layout_marginTop="8dp"
-        android:hint="Enter Read API Key"
+        android:hint="@string/dialog_enter_root_link_prompt"
         android:inputType="text">
 
     </EditText>
@@ -64,7 +64,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="API Key can also be added in settings later"
+        android:text="@string/dialog_root_link_settings_later"
         android:gravity="center"
 
         android:textStyle="italic"/>

@@ -1,0 +1,25 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <EditTextPreference
+        android:defaultValue="0"
+        android:inputType="textNoSuggestions"
+        android:key="api_key_edit"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:summary="@string/pref_edit_api_summary"
+        android:title="@string/pref_edit_api_key"
+        android:layout_height="wrap_content" />
+
+    <EditTextPreference
+        android:defaultValue="@string/default_serc_root_link"
+        android:inputType="textUri"
+        android:key="root_link_editpref"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:summary="@string/pref_edit_root_link_summary"
+        android:title="@string/pref_edit_root_link_title"
+        />
+
+
+</PreferenceScreen>

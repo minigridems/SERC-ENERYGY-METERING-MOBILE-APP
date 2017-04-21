@@ -4,8 +4,18 @@
 
     <header
         android:fragment="edu.strathmore.serc.sercopenenergymonitorv3.SettingsActivity$GeneralPreferenceFragment"
-        android:icon="@drawable/ic_info_black_24dp"
+        android:icon="@drawable/ic_action_wrench_icon"
         android:title="@string/pref_header_general" />
+
+    <header
+        android:fragment="edu.strathmore.serc.sercopenenergymonitorv3.SettingsActivity$GraphPreferenceFragment"
+        android:icon="@drawable/ic_action_1492780722_12_seo_benchmark"
+        android:title="@string/pref_header_graph" />
+
+    <header
+        android:fragment="edu.strathmore.serc.sercopenenergymonitorv3.SettingsActivity$AccountPreferenceFragment"
+        android:icon="@drawable/ic_action_account_icon"
+        android:title="@string/pref_header_account" />
 
    <!-- <header
         android:fragment="edu.strathmore.serc.sercopenenergymonitorv3.SettingsActivity$NotificationPreferenceFragment"

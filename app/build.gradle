@@ -21,8 +21,8 @@ android {
         applicationId "edu.strathmore.serc.sercopenenergymonitorv3"
         minSdkVersion 14
         targetSdkVersion 21
-        versionCode 5
-        versionName "1.4-Third alpha release"
+        versionCode 6
+        versionName "1.5-Fourth alpha release"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

@@ -40,7 +40,7 @@ import java.util.concurrent.ExecutionException;
 public class MainActivity extends AppCompatActivity {
 
     //For the call to be made to the CMS API
-    private static String rootLinkAddress = "https://serc.strathmore.edu";
+    private String rootLinkAddress;
     private String apiKey;
     //apiKey = "36ec19e2a135f22b50883d555eea2114";
 
@@ -69,9 +69,11 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences.Editor editor = appSettings.edit();
         editor.putString("api_key_edit", "36ec19e2a135f22b50883d555eea2114");
+        editor.putString("root_link_editpref", "https://serc.strathmore.edu");
         editor.apply();
 
         apiKey = appSettings.getString("api_key_edit", null);
+        rootLinkAddress = appSettings.getString("root_link_editpref", null);
 
         /*
          * Checks the API key is not empty/null(such as the first time a user logs in) or blank (for
@@ -93,6 +95,21 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+        if (rootLinkAddress==null || rootLinkAddress.contentEquals("")){
+
+            RootLinkDialog rootLinkDialog = new RootLinkDialog();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            rootLinkDialog.show(ft, "fragment_root_link");
+
+            /*
+             * Since the RootLinkDialog will save the root link in the shared preferences once the user
+             * clicks the 'ok' button. If the user clicks cancel or enters a null string, the root link
+             * will be null, resulting in an error when the link is sent (cannot concatenate strings
+             * will a null object). As such an empty String "" is put as the default below
+             */
+            rootLinkAddress = appSettings.getString("root_link_editpref", "");
+
+        }
 
 
         // Create an ArrayList of RecordingStation Objects with the variable name recordingStations
@@ -233,6 +250,11 @@ public class MainActivity extends AppCompatActivity {
 
     // This Fragment class defines the pop-up that shows up if an API key is not found/or provided by the user
     public static class APIKeyDialog extends DialogFragment {
+
+
+        private EditText apiKeyInput;
+
+
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
@@ -242,10 +264,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        private EditText apiKeyInput;
+
 
         // Empty constructor required for DialogFragment
         public APIKeyDialog(){}
+
 
         @NonNull
         @Override
@@ -255,9 +278,10 @@ public class MainActivity extends AppCompatActivity {
             // Get the layout inflater
             LayoutInflater inflater = getActivity().getLayoutInflater();
 
+
             // Inflate and set the layout for the dialog
             // Pass null as the parent view because its going in the dialog layout
-            View view = inflater.inflate(R.layout.dialog_login, null);
+            View view = inflater.inflate(R.layout.dialog_login_api, null);
             dialogBuilder.setView(view);
             // Get the edit text view from the xml
             apiKeyInput = (EditText) view.findViewById(R.id.dialog_edit_text_api_key);
@@ -295,9 +319,88 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
+
             return dialogBuilder.create();
         }
     }
+
+    // This Fragment class defines the pop-up that shows up if an API key is not found/or provided by the user
+    public static class RootLinkDialog extends DialogFragment {
+
+
+
+        private EditText rootLinkInput;
+
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+            // Show soft keyboard automatically
+            if (getDialog() != null) {
+                getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+            }
+        }
+
+
+
+        // Empty constructor required for DialogFragment
+        public RootLinkDialog(){}
+
+
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+            // Get the layout inflater
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+
+
+
+            // Inflate and set the layout for the dialog
+            // Pass null as the parent view because its going in the dialog layout
+            View view = inflater.inflate(R.layout.dialog_login_root_link, null);
+            dialogBuilder.setView(view);
+            // Get the edit text view from the xml
+            rootLinkInput = (EditText) view.findViewById(R.id.dialog_edit_text_root_link);
+            // Makes the EditText box to be highlighted
+            rootLinkInput.requestFocus();
+
+
+            //Add Action button
+            dialogBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String userInput = rootLinkInput.getText().toString();
+
+                    if (userInput.contentEquals("")) {
+                        Toast.makeText(getContext(), "Root Link not saved. Please add it in settings", Toast.LENGTH_LONG).show();
+                    } else
+                    {
+                        Toast.makeText(getContext(), "Root Link " + userInput + " saved in Settings", Toast.LENGTH_LONG).show();
+                    }
+
+                    // Save settings
+                    SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    SharedPreferences.Editor editor = appSettings.edit();
+                    editor.putString("root_link_editpref", userInput);
+                    editor.apply();
+
+                }
+            });
+
+            dialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Toast.makeText(getContext(), "Root Link not saved. Please add it in settings", Toast.LENGTH_LONG).show();
+                    RootLinkDialog.this.getDialog().cancel();
+                }
+            });
+
+
+            return dialogBuilder.create();
+        }
+    }
+
 
     //Method to refresh content. Called when user swipes up to refresh
     private void refreshContent(){
