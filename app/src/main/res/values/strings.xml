@@ -212,7 +212,8 @@
     <string name="root_link_dialog_title">Root Link Not found</string>
     <string name="dialog_enter_root_link_prompt">Enter Root Link</string>
     <string name="dialog_root_link_settings_later">The Root Link can also be added in settings later</string>
-
+    <string name="pref_grid_draw_graph_title">Draw Grid</string>
+    <string name="pref_grid_draw_graph_summary">If enabled, the background rectangle behind the chart drawing-area will be drawn.</string>
 
 
     <!--Custom List for Settings -->

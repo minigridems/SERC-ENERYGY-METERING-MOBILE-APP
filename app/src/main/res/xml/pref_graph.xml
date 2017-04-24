@@ -33,10 +33,20 @@
         />
 
     <SwitchPreference
+        android:defaultValue="true"
+        android:title="@string/pref_grid_draw_graph_title"
+        android:summary="@string/pref_grid_draw_graph_summary"
+        android:key="graph_draw_grid_pref"
+        />
+
+
+
+    <SwitchPreference
         android:key="graph_y_axis_both_sides"
         android:title="@string/pref_graph_y_axis_label_title"
         android:summary="@string/pref_graph_y_axis_label_summary"
         android:defaultValue="false"
+
         />
 
     <ListPreference

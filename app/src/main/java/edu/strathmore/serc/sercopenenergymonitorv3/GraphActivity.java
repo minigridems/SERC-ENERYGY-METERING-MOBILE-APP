@@ -347,6 +347,12 @@ public class GraphActivity extends AppCompatActivity {
                 lineChart.invalidate(); //refresh the data
                 lineChart.fitScreen();  // set the zoom level back to the default
 
+                // Gets the preference for whether or not the grid will be drawn
+                boolean toDrawGrid = appSettings.getBoolean("graph_draw_grid_pref", true);
+                lineChart.getXAxis().setDrawGridLines(toDrawGrid);
+                lineChart.getAxisLeft().setDrawGridLines(toDrawGrid);
+                lineChart.getAxisRight().setDrawGridLines(toDrawGrid);
+
                 Log.i("SERC Log", "Styling xAxis");
                 // Gets the x axis
                 XAxis styledXAxis = lineChart.getXAxis();
