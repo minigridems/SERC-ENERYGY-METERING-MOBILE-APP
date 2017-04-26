@@ -50,9 +50,6 @@ dependencies {
     compile 'com.android.support:support-v4:25.2.0'
     compile 'com.github.PhilJay:MPAndroidChart:v3.0.1'
     compile 'com.github.medyo:fancybuttons:1.8.3'
-    compile 'com.github.amlcurran.showcaseview:library:5.4.3'
-    compile 'com.github.deano2390:MaterialShowcaseView:1.1.0'
-    compile 'com.github.iammert:MaterialIntroView:1.6.0'
     compile 'com.codemybrainsout.onboarding:onboarder:1.0.3'
     testCompile 'junit:junit:4.12'
 }

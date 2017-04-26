@@ -1,8 +1,10 @@
 package edu.strathmore.serc.sercopenenergymonitorv3;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 
 import com.codemybrainsout.onboarder.AhoyOnboarderActivity;
@@ -17,20 +19,25 @@ public class HelpActivity extends AhoyOnboarderActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
+        SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
+
+
+
         AhoyOnboarderCard ahoyOnboarderCard1 = new AhoyOnboarderCard("Welcome",
-                "This app is has been created to monitor energy use remotely using the EmonCMS platform",
+                "This app is has been created to monitor energy use remotely for multiple locations using the EmonCMS platform",
                 R.drawable.lightning_icon);
         AhoyOnboarderCard ahoyOnboarderCard2 = new AhoyOnboarderCard("Current Data",
                 "To get the most current reading, swipe down to refresh the data",
                 R.drawable.swipe_down_illust_2);
         AhoyOnboarderCard ahoyOnboarderCard3 = new AhoyOnboarderCard("Graph",
-                "To access the graph, click on any location",
+                "To access a graph of the readings for a particular location, click on that location",
                 R.drawable.easel_icon);
         AhoyOnboarderCard ahoyOnboarderCard4 = new AhoyOnboarderCard("Account",
                 "In order to communicate with the platform, you will be requested to provide some information",
                 R.drawable.color_profile_icon);
         AhoyOnboarderCard ahoyOnboarderCard5 = new AhoyOnboarderCard("API Key",
-                "The first is the READ API key found in the EmonCms account page",
+                "The first is the READ API key, which can be found by logging your EmonCms account page",
                 R.drawable.key_icon);
         AhoyOnboarderCard ahoyOnboarderCard6 = new AhoyOnboarderCard("Root Link",
                 "The second is the root HTTP link for where the platform is hosted",
@@ -59,7 +66,15 @@ public class HelpActivity extends AhoyOnboarderActivity {
             //page.setIconLayoutParams(width, height, marginTop, marginLeft, marginRight, marginBottom);
         }
 
-        setFinishButtonTitle("Finish");
+        boolean helpPageShown = appSettings.getBoolean("help_page_shown",false);
+        // Provides a different button depending on whether or not the help page has been shown before
+        if (helpPageShown) {
+            setFinishButtonTitle("Finish");
+        } else{
+            setFinishButtonTitle("Get Started");
+        }
+
+
         showNavigationControls(true);
         setGradientBackground();
 
@@ -71,6 +86,11 @@ public class HelpActivity extends AhoyOnboarderActivity {
 
 
         setOnboardPages(pages);
+
+        // Save in the preference that the help page has been shown
+        SharedPreferences.Editor editor = appSettings.edit();
+        editor.putBoolean("help_page_shown", true);
+        editor.apply();
     }
 
     @Override
