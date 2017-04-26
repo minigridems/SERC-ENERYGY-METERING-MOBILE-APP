@@ -51,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
     // Needs to be global as it is used both in the onCreate and refresh method
     private RecordingStationAdapter adapter;
 
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Log start of onCreate method
@@ -216,6 +219,78 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+      /*  TextView swipeToRefreshText = (TextView) findViewById(R.id.swipe_up_to_refresh_textview);
+        final String SHOWCASE_ID = "some_custom_text";
+        Menu mainToolbar = toolbar.getMenu();
+        ListView mainListView = (ListView) findViewById(R.id.polling_results_list_view);
+        Menu settingMenu = (Menu) findViewById(R.id.action_settings);
+
+
+        new MaterialIntroView.Builder(this)
+                .enableDotAnimation(false)
+                .enableIcon(false)
+                .setFocusGravity(FocusGravity.CENTER)
+                .setFocusType(Focus.MINIMUM)
+                .setDelayMillis(500)
+                .enableFadeAnimation(true)
+                .performClick(true)
+                .setInfoText("Hi There! Click this card and see what happens.")
+
+                .setTarget(listView)
+                //.setUsageId("intro_card") //THIS SHOULD BE UNIQUE ID
+                .show();*/
+
+        /*// ShowcaseView for help screen
+        new ShowcaseView.Builder(this)
+                .setTarget(new ViewTarget(R.id.toolbar, this))
+                .setContentTitle("This is the toolbar").withMaterialShowcase()
+                .setContentText("You can do all this amazing stuff with it").withMaterialShowcase()
+                .hideOnTouchOutside()
+                .build();*/
+
+
+       /* // single example
+        new MaterialShowcaseView.Builder(this)
+                .setTarget(toolbar)
+                .setTitleText("This is the menu")
+                .setDismissText("Ok")
+                .setContentText("You can do all this amazing stuff with it")
+                .setDismissOnTouch(true)
+                .setDelay(500)
+                .show();*/
+
+
+/*
+        new MaterialShowcaseView.Builder(this)
+                .setTarget(swipeToRefreshText)
+                .setDismissText("GOT IT")
+                .setContentText("This is some amazing feature you should know about")
+                *//*.setDelay(withDelay) // optional but starting animations immediately in onCreate can make them choppy
+                .singleUse(SHOWCASE_ID) // provide a unique ID used to ensure it is only shown once*//*
+                .show();*/
+
+
+
+/*
+        // sequence example
+        ShowcaseConfig config = new ShowcaseConfig();
+        config.setDelay(500); // half second between each showcase view
+
+        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
+
+        sequence.setConfig(config);
+
+        sequence.addSequenceItem(swipeToRefreshText,
+                "This is button one", "GOT IT");
+
+        sequence.addSequenceItem(toolbar,
+                "This is button two", "GOT IT");
+
+        sequence.addSequenceItem(swipeToRefreshText,
+                "This is button three", "GOT IT");
+
+        sequence.start();*/
+
 
     }
 
@@ -243,9 +318,14 @@ public class MainActivity extends AppCompatActivity {
             startActivity(openAboutIntent);
             return true;
         }
+        if (id==R.id.action_help){
+            Intent openHelpIntent = new Intent(this, HelpActivity.class);
+            startActivity(openHelpIntent);
+            return true;}
 
         return super.onOptionsItemSelected(item);
     }
+
 
 
     // This Fragment class defines the pop-up that shows up if an API key is not found/or provided by the user
@@ -403,6 +483,9 @@ public class MainActivity extends AppCompatActivity {
 
 
     //Method to refresh content. Called when user swipes up to refresh
+
+
+    //
     private void refreshContent(){
         // Full list of Stations from the platform
         ArrayList<RecordingStation> recordingStationsList = getRecordingStationsList();
@@ -561,5 +644,9 @@ public class MainActivity extends AppCompatActivity {
 
         return recordingStationsForAdapter;
     }
+
+
+
+
 
 }

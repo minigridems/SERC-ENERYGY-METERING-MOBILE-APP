@@ -52,8 +52,10 @@ public class GraphActivity extends AppCompatActivity {
 
     // To be used in the link to be sent and are not meant to be changed currently
     // Possible to change in the future to be input by the user
-    final static String ROOT_LINK = "https://serc.strathmore.edu/emoncms/feed/data.json?id=";
-    final static String API_KEY= "36ec19e2a135f22b50883d555eea2114";
+    String ROOT_LINK = "";
+    String API_KEY = "";
+    /*final static String ROOT_LINK = "https://serc.strathmore.edu/emoncms/feed/data.json?id=";
+    final static String API_KEY= "36ec19e2a135f22b50883d555eea2114";*/
 
     // Placeholder. Not used currently
     final static int INTERVAL = 900;
@@ -94,6 +96,15 @@ public class GraphActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_graph);
+
+        // Get API Key and Root Link from settings
+        SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
+        ROOT_LINK = appSettings.getString("root_link_editpref", "");
+        ROOT_LINK = ROOT_LINK + "/emoncms/feed/data.json?id=";
+        API_KEY = appSettings.getString("api_key_edit","");
+
+       /* editor.putString("api_key_edit", "36ec19e2a135f22b50883d555eea2114");
+        editor.putString("root_link_editpref", "https://serc.strathmore.edu");*/
 
         //Getting data from received intent to start GraphActivity
         Bundle extras = getIntent().getExtras();
