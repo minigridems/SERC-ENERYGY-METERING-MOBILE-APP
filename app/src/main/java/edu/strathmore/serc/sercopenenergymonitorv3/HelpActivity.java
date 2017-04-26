@@ -37,7 +37,7 @@ public class HelpActivity extends AhoyOnboarderActivity {
                 "In order to communicate with the platform, you will be requested to provide some information",
                 R.drawable.color_profile_icon);
         AhoyOnboarderCard ahoyOnboarderCard5 = new AhoyOnboarderCard("API Key",
-                "The first is the READ API key, which can be found by logging your EmonCms account page",
+                "The first is the READ API key, which can be found by logging into your EmonCms Platform under \'My Account\'",
                 R.drawable.key_icon);
         AhoyOnboarderCard ahoyOnboarderCard6 = new AhoyOnboarderCard("Root Link",
                 "The second is the root HTTP link for where the platform is hosted",
