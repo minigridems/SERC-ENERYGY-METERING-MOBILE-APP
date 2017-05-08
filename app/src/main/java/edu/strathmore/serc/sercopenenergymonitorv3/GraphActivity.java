@@ -44,9 +44,12 @@ import mehdi.sakout.fancybuttons.FancyButton;
 
 
 /**
- * Note that this activity uses:
- * MPAndroidChart to graph. (https://github.com/PhilJay/MPAndroidChart)
- * Custom buttons called FancyButtons from https://github.com/medyo/fancybuttons as the buttons
+ * This was the original Graph Page that was replaced by GraphTabbed.class. It was a one page set up
+ * (xml layout is activity_graph.xml) for displaying the graph at the bottom with the graph parameters
+ * at the top.
+ * It is currently not in use but has been left as option if the single screen layout is preferred
+ * In order to use it, simply change the intent from the MainActivity on list item click from
+ * GraphTabbed.class to GraphActivity.class
  */
 
 

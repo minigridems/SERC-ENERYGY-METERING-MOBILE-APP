@@ -53,6 +53,12 @@ import mehdi.sakout.fancybuttons.FancyButton;
 
 import static edu.strathmore.serc.sercopenenergymonitorv3.R.id.container;
 
+/**
+ * Note that this activity uses:
+ * MPAndroidChart to graph. (https://github.com/PhilJay/MPAndroidChart)
+ * Custom buttons, FancyButtons from https://github.com/medyo/fancybuttons as the buttons
+ */
+
 public class GraphTabbed extends AppCompatActivity {
 
 
