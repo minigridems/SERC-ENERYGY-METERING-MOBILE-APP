@@ -24,7 +24,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
@@ -49,14 +49,26 @@
         <activity
             android:name=".GraphActivity"
             android:label="@string/graph_title"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+           >
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.strathmore.serc.sercopenenergymonitorv3.MainActivity" />
         </activity>
-        <activity android:name=".HelpActivity"></activity>
+        <activity android:name=".HelpActivity" />
+        <activity
+            android:name=".GraphTabbed"
+            android:label="@string/title_activity_graph_tabbed"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:parentActivityName="edu.strathmore.serc.sercopenenergymonitorv3.MainActivity">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="edu.strathmore.serc.sercopenenergymonitorv3.MainActivity" />
+        </activity>
     </application>
 
 </manifest>

@@ -3,7 +3,6 @@
     xmlns:fancy="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/scroll_view"
-
     android:fadeScrollbars="false"
     android:scrollbarThumbVertical="@drawable/vertical_scrollview_thumb"
     android:scrollbarTrackVertical="@drawable/vertical_scrollview_track"

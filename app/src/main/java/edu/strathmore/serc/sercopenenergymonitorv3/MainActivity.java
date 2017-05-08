@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences.Editor editor = appSettings.edit();
         editor.putString("api_key_edit", "36ec19e2a135f22b50883d555eea2114");
-        editor.putString("root_link_editpref", "https://serc.strathmore.edu");
+        editor.putString("root_link_editpref", "https://serc.strathmore.edu/emoncms");
         editor.apply();
 
         apiKey = appSettings.getString("api_key_edit", null);
@@ -148,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // Intent to open GraphActivity
-                Intent graphIntent = new Intent(MainActivity.this, GraphActivity.class);
+                Intent graphIntent = new Intent(MainActivity.this, GraphTabbed.class);
 
                 // Getting the station ID, name and tag of the Clicked item to be sent with the intent
                 graphIntent.putExtra("Station_ID", adapter.getItem(position).getStationID());
@@ -219,78 +219,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-      /*  TextView swipeToRefreshText = (TextView) findViewById(R.id.swipe_up_to_refresh_textview);
-        final String SHOWCASE_ID = "some_custom_text";
-        Menu mainToolbar = toolbar.getMenu();
-        ListView mainListView = (ListView) findViewById(R.id.polling_results_list_view);
-        Menu settingMenu = (Menu) findViewById(R.id.action_settings);
-
-
-        new MaterialIntroView.Builder(this)
-                .enableDotAnimation(false)
-                .enableIcon(false)
-                .setFocusGravity(FocusGravity.CENTER)
-                .setFocusType(Focus.MINIMUM)
-                .setDelayMillis(500)
-                .enableFadeAnimation(true)
-                .performClick(true)
-                .setInfoText("Hi There! Click this card and see what happens.")
-
-                .setTarget(listView)
-                //.setUsageId("intro_card") //THIS SHOULD BE UNIQUE ID
-                .show();*/
-
-        /*// ShowcaseView for help screen
-        new ShowcaseView.Builder(this)
-                .setTarget(new ViewTarget(R.id.toolbar, this))
-                .setContentTitle("This is the toolbar").withMaterialShowcase()
-                .setContentText("You can do all this amazing stuff with it").withMaterialShowcase()
-                .hideOnTouchOutside()
-                .build();*/
-
-
-       /* // single example
-        new MaterialShowcaseView.Builder(this)
-                .setTarget(toolbar)
-                .setTitleText("This is the menu")
-                .setDismissText("Ok")
-                .setContentText("You can do all this amazing stuff with it")
-                .setDismissOnTouch(true)
-                .setDelay(500)
-                .show();*/
-
-
-/*
-        new MaterialShowcaseView.Builder(this)
-                .setTarget(swipeToRefreshText)
-                .setDismissText("GOT IT")
-                .setContentText("This is some amazing feature you should know about")
-                *//*.setDelay(withDelay) // optional but starting animations immediately in onCreate can make them choppy
-                .singleUse(SHOWCASE_ID) // provide a unique ID used to ensure it is only shown once*//*
-                .show();*/
-
-
-
-/*
-        // sequence example
-        ShowcaseConfig config = new ShowcaseConfig();
-        config.setDelay(500); // half second between each showcase view
-
-        MaterialShowcaseSequence sequence = new MaterialShowcaseSequence(this, SHOWCASE_ID);
-
-        sequence.setConfig(config);
-
-        sequence.addSequenceItem(swipeToRefreshText,
-                "This is button one", "GOT IT");
-
-        sequence.addSequenceItem(toolbar,
-                "This is button two", "GOT IT");
-
-        sequence.addSequenceItem(swipeToRefreshText,
-                "This is button three", "GOT IT");
-
-        sequence.start();*/
-
 
     }
 
@@ -321,7 +249,9 @@ public class MainActivity extends AppCompatActivity {
         if (id==R.id.action_help){
             Intent openHelpIntent = new Intent(this, HelpActivity.class);
             startActivity(openHelpIntent);
-            return true;}
+            return true;
+        }
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -522,7 +452,7 @@ public class MainActivity extends AppCompatActivity {
             apiKey = appSettings.getString("api_key_edit", "");
             // Call CmsApiCall using the MainActivity as the context. The result is the JSON file in
             // form of a continuous String.
-            result = new CmsApiCall(MainActivity.this).execute(rootLinkAddress+"/emoncms/feed/list.json&apikey="+apiKey).get();
+            result = new CmsApiCall(MainActivity.this).execute(rootLinkAddress+"/feed/list.json&apikey="+apiKey).get();
 
             // This changes the JSON String into a JSON object. The response for this call consists of
             // one JSON array with individual objects for each node added to the Emon CMS platform

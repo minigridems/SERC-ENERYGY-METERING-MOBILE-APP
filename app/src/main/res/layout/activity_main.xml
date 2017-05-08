@@ -20,27 +20,32 @@
             android:background="?attr/colorPrimary"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
+        <TextView
+            android:id="@+id/swipe_up_to_refresh_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingBottom="4dp"
+            android:text="@string/swipe_down_to_refresh"
+            android:textStyle="italic"
+            android:textColor="@android:color/white"
+            android:background="@color/colorPrimary"
+            android:minHeight="8dp"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:layout_scrollFlags="exitUntilCollapsed"
+            tools:context="edu.strathmore.serc.sercopenenergymonitorv3.MainActivity"
+            tools:showIn="@layout/activity_main"/>
+
     </android.support.design.widget.AppBarLayout>
 
 
-    <TextView
-        android:id="@+id/swipe_up_to_refresh_textview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:paddingBottom="4dp"
-        android:text="@string/swipe_down_to_refresh"
-        android:textStyle="italic"
-        android:background="@color/grey_200"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:context="edu.strathmore.serc.sercopenenergymonitorv3.MainActivity"
-        tools:showIn="@layout/activity_main"/>
+
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+
         android:drawSelectorOnTop="false"
         android:listSelector="@android:color/holo_red_dark"
         android:background="@color/grey_200"

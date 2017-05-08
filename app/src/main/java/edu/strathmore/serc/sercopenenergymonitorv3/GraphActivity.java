@@ -9,6 +9,8 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -91,16 +93,32 @@ public class GraphActivity extends AppCompatActivity {
 
     LineChart lineChart;
 
+    /**
+     * The {@link android.support.v4.view.PagerAdapter} that will provide
+     * fragments for each of the sections. We use a
+     * {@link FragmentPagerAdapter} derivative, which will keep every
+     * loaded fragment in memory. If this becomes too memory intensive, it
+     * may be best to switch to a
+     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
+     *//*
+     SectionsPagerAdapter mSectionsPagerAdapter;
+
+    *//**
+     * The {@link ViewPager} that will host the section contents.
+     *//*
+    private ViewPager mViewPager;*/
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_graph);
 
+
         // Get API Key and Root Link from settings
         SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
         ROOT_LINK = appSettings.getString("root_link_editpref", "");
-        ROOT_LINK = ROOT_LINK + "/emoncms/feed/data.json?id=";
+        ROOT_LINK = ROOT_LINK + "/feed/data.json?id=";
         API_KEY = appSettings.getString("api_key_edit","");
 
        /* editor.putString("api_key_edit", "36ec19e2a135f22b50883d555eea2114");

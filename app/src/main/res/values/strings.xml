@@ -3,6 +3,7 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
     <string name="title_activity_about">About</string>
+    <string name="action_reset_zoom">Reset Zoom</string>
 
 
     <!-- Strings related to Settings -->
@@ -118,8 +119,7 @@
     <string name="pref_edit_api_summary">Contains the API Key for the users account that is used to fetch data</string>
 
     <string name="pref_edit_root_link_title">Edit Root Link</string>
-    <string name="pref_edit_root_link_summary">The URL of before \'/emoncms...\' in the link when
-        accessing your account using a browser</string>
+    <string name="pref_edit_root_link_summary">The URL of where the EMONCms platform is hostedr</string>
 
 
     <!-- Example settings for Data & Sync -->
@@ -202,9 +202,10 @@
     <string name="api_key_dialog_settings_reminder">API Key can also be added in settings later</string>
 
 
-    <string name="root_link_error_desc">The Root Link is the URL of before \'/emoncms...\' in the link when
-        accessing your account using a browser. \nE.g. If your account is at https://serc.strathmore.edu/emoncms/user/view,
-        then \"https://serc.strathmore.edu\" is the root link </string>
+    <string name="root_link_error_desc">The Root Link is the URL of where the EMONCms platform is hosted.
+        \nFor example, if your account is at https://www.emoncms.org/user/view, then the root link is \"https://www.emoncms.org\".
+        If your account is at https://serc.strathmore.edu/emoncms/user/view, then the root link is \"https://serc.strathmore.edu/emoncms\".
+    </string>
     <string name="root_link_dialog_title">Root Link Not found</string>
     <string name="dialog_enter_root_link_prompt">Enter Root Link</string>
     <string name="dialog_root_link_settings_later">The Root Link can also be added in settings later</string>
@@ -220,8 +221,8 @@
     <string-array name="pref_station_list_values">
 
     </string-array>
-
-
+    <string name="title_activity_graph_tabbed">Graph Page</string>
+    <string name="section_format">Hello World from section: %1$d</string>
 
 
 </resources>
