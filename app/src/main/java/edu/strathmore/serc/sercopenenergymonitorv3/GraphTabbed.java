@@ -54,6 +54,12 @@ import mehdi.sakout.fancybuttons.FancyButton;
 import static edu.strathmore.serc.sercopenenergymonitorv3.R.id.container;
 
 /**
+ * This is the Graph Page that is inflated when a user clicks on a location in the main screen. It
+ * consists of one Activity and 5 Fragments.
+ * The First Fragment (GraphParametersFragment) contains handles the first tab with the graph parameters to be drawn.
+ * The second fragment (GraphFragment) contains the MPAndroidChart only in the second tab
+ * The other fragments deal with the Time/Date Pickers for the start/end time and date.
+ *
  * Note that this activity uses:
  * MPAndroidChart to graph. (https://github.com/PhilJay/MPAndroidChart)
  * Custom buttons, FancyButtons from https://github.com/medyo/fancybuttons as the buttons
@@ -61,12 +67,10 @@ import static edu.strathmore.serc.sercopenenergymonitorv3.R.id.container;
 
 public class GraphTabbed extends AppCompatActivity {
 
-
-    // To be used in the link to be sent and are not meant to be changed currently
-    // Possible to change in the future to be input by the user
+    // Used to construct the link that makes the API calls
     String ROOT_LINK = "";
     String API_KEY = "";
-    /* For serc website
+    /* For SERC website
     ROOT_LINK = "https://serc.strathmore.edu/emoncms/feed/data.json?id=";
     API_KEY= "36ec19e2a135f22b50883d555eea2114";
     */
@@ -75,6 +79,7 @@ public class GraphTabbed extends AppCompatActivity {
     final static int INTERVAL = 900;
 
     // Needed for link and is meant to be changed depending on the values input by the user
+    // Made global variable so that they can be changed from any method
     private String startTime = "";
     private String endTime = "";
     private int stationID = 0;
@@ -90,14 +95,11 @@ public class GraphTabbed extends AppCompatActivity {
     // Needed for calendar dialog
     private int year_start, year_end, month_start, month_end, day_start, day_end;
 
-
     // Needed for time dialog
     private int hour_start, hour_end, minute_start, minute_end;
 
-
+    // For the MPAndroidChart LineChart that displays the graph
     private LineChart lineChart;
-
-
 
 
     /**
@@ -114,8 +116,6 @@ public class GraphTabbed extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
-
-    View graphParametersPage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,7 +157,6 @@ public class GraphTabbed extends AppCompatActivity {
             Log.i("StationExtras in intent", "Station_ID" + String.valueOf(stationID) +
                     "Station_Tag" + String.valueOf(stationTag)+"Station_Name" + String.valueOf(stationName));
         }
-
 
 
         /* Setting today's date and time as default values when the calendar dialog first shows up
@@ -341,6 +340,24 @@ public class GraphTabbed extends AppCompatActivity {
 
     }
 
+    public static class GraphFragment extends Fragment{
+
+        // Empty constructor
+        public GraphFragment(){}
+
+        @Nullable
+        @Override
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            // Get the xml layout file for the fragment and store it as a view
+            View graphOnlyView = inflater.inflate(R.layout.graph_only,container, false);
+            // Set the global varible to the graph as the fragment is created
+            ((GraphTabbed)getActivity()).lineChart = (LineChart) graphOnlyView.findViewById(R.id.graph_full_page);
+            ((GraphTabbed)getActivity()).drawGraph(((GraphTabbed)getActivity()).link);
+            // Return the View
+            return graphOnlyView;
+        }
+    }
+
 
     // Handles the behaviour for the DatePicker Dialog window for Start Date
     public static class DatePickerStartFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
@@ -516,23 +533,7 @@ public class GraphTabbed extends AppCompatActivity {
     }
 
 
-    public static class GraphFragment extends Fragment{
 
-        // Empty constructor
-        public GraphFragment(){}
-
-        @Nullable
-        @Override
-        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-            // Get the xml layout file for the fragment and store it as a view
-            View graphOnlyView = inflater.inflate(R.layout.graph_only,container, false);
-            // Set the global varible to the graph as the fragment is created
-            ((GraphTabbed)getActivity()).lineChart = (LineChart) graphOnlyView.findViewById(R.id.graph_full_page);
-            ((GraphTabbed)getActivity()).drawGraph(((GraphTabbed)getActivity()).link);
-            // Return the View
-            return graphOnlyView;
-        }
-    }
 
 
 
