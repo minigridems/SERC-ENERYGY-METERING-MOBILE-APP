@@ -143,7 +143,7 @@ public class GraphTabbed extends AppCompatActivity {
         // Get API Key and Root Link from settings
         SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
         ROOT_LINK = appSettings.getString("root_link_editpref", "");
-        ROOT_LINK = ROOT_LINK + "/feed/data.json?id=";
+        ROOT_LINK = ROOT_LINK + "feed/data.json?id=";
         API_KEY = appSettings.getString("api_key_edit","");
 
 

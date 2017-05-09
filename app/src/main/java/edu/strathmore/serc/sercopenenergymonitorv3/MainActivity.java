@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         // Gets the API key from settings (Shared Preferences)
         SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
 
+        // Used to put the default account settings for SERC
         /*SharedPreferences.Editor editor = appSettings.edit();
         editor.putString("api_key_edit", "36ec19e2a135f22b50883d555eea2114");
         editor.putString("root_link_editpref", "https://serc.strathmore.edu/emoncms");
@@ -77,6 +78,12 @@ public class MainActivity extends AppCompatActivity {
 
         apiKey = appSettings.getString("api_key_edit", null);
         rootLinkAddress = appSettings.getString("root_link_editpref", null);
+        // Make sure the link is null before trying to fix it
+        if (rootLinkAddress != null) {
+            rootLinkAddress = fixLink(rootLinkAddress);
+        }
+
+
 
         /*
          * Checks the API key is not empty/null(such as the first time a user logs in) or blank (for
@@ -111,6 +118,9 @@ public class MainActivity extends AppCompatActivity {
              * will a null object). As such an empty String "" is put as the default below
              */
             rootLinkAddress = appSettings.getString("root_link_editpref", "");
+            rootLinkAddress = fixLink(rootLinkAddress);
+
+
 
         }
 
@@ -222,6 +232,33 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // Method used to add a "/" at the end and "https://" at the beginning of a link
+    private String fixLink (String linkToFix){
+        String mFixedString = "";
+
+        // Gets the API key from settings (Shared Preferences)
+        SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = appSettings.edit();
+
+        // Adds a "/" if it is not the last character in the link
+        if (!linkToFix.matches(".*[/]")){
+            mFixedString = linkToFix + "/";
+            editor.putString("root_link_editpref", mFixedString);
+            editor.apply();
+        }
+        // Checks if the link starts with https:// or http:// and adds it if not
+        if (linkToFix.startsWith("https://") || linkToFix.startsWith("http://")){
+            mFixedString = linkToFix;
+        }
+        else {
+            mFixedString = "https://" + linkToFix;
+            editor.putString("root_link_editpref", mFixedString);
+            editor.apply();
+        }
+
+        return mFixedString;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -318,6 +355,8 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString("api_key_edit", userInput);
                     editor.apply();
 
+                    ((MainActivity)getActivity()).refreshContent();
+
                 }
             });
 
@@ -381,6 +420,9 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     String userInput = rootLinkInput.getText().toString();
+                    if (!userInput.endsWith("/")){
+                        userInput += "/";
+                    }
 
                     if (userInput.contentEquals("")) {
                         Toast.makeText(getContext(), "Root Link not saved. Please add it in settings", Toast.LENGTH_LONG).show();
@@ -394,6 +436,8 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = appSettings.edit();
                     editor.putString("root_link_editpref", userInput);
                     editor.apply();
+
+                    ((MainActivity)getActivity()).refreshContent();
 
                 }
             });
@@ -415,7 +459,7 @@ public class MainActivity extends AppCompatActivity {
     //Method to refresh content. Called when user swipes up to refresh
 
 
-    //
+    // Refreshes the content in the main screen with the latest values
     private void refreshContent(){
         // Full list of Stations from the platform
         ArrayList<RecordingStation> recordingStationsList = getRecordingStationsList();
@@ -449,10 +493,14 @@ public class MainActivity extends AppCompatActivity {
         try {
             // Get API key from settings
             SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
+            rootLinkAddress = appSettings.getString("root_link_editpref","");
+            // Make sure link is not malformed
+            rootLinkAddress = fixLink(rootLinkAddress);
+
             apiKey = appSettings.getString("api_key_edit", "");
             // Call CmsApiCall using the MainActivity as the context. The result is the JSON file in
             // form of a continuous String.
-            result = new CmsApiCall(MainActivity.this).execute(rootLinkAddress+"/feed/list.json&apikey="+apiKey).get();
+            result = new CmsApiCall(MainActivity.this).execute(rootLinkAddress+"feed/list.json&apikey="+apiKey).get();
 
             // This changes the JSON String into a JSON object. The response for this call consists of
             // one JSON array with individual objects for each node added to the Emon CMS platform
