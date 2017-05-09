@@ -43,6 +43,9 @@
     <string name="pref_graph_line_color_title">Line Color</string>
     <string name="pref_graph_line_color_summary">Changes the color of the line for the graph</string>
 
+    <string name="pref_graph_default_duration_title">Default Duration on \'Draw Graph\' click</string>
+
+
     <string name="pref_graph_y_axis_label_title">Show Y-Axis Labels on both sides</string>
     <string name="pref_graph_y_axis_label_summary">If turned off, the Y-Axis label will only be shown on the left</string>
 
@@ -68,6 +71,30 @@
         <item>360</item>
         <item>720</item>
         <item>1440</item>
+
+    </string-array>
+
+    <string-array name="graph_default_duration_entries">
+        <item>1 day</item>
+        <item>2 days</item>
+        <item>4 days</item>
+        <item>1 week</item>
+        <item>2 weeks</item>
+        <item>1 month</item>
+        <item>6 months</item>
+
+
+    </string-array>
+
+    <string-array name="graph_default_duration_values">
+        <item>1</item>
+        <item>2</item>
+        <item>4</item>
+        <item>7</item>
+        <item>14</item>
+        <item>30</item>
+        <item>180</item>
+
 
     </string-array>
 
@@ -110,6 +137,8 @@
     </string-array>
 
 
+
+
     <!--Account Settings-->
     <string name="pref_header_account">Account</string>
 
@@ -119,7 +148,7 @@
     <string name="pref_edit_api_summary">Contains the API Key for the users account that is used to fetch data</string>
 
     <string name="pref_edit_root_link_title">Edit Root Link</string>
-    <string name="pref_edit_root_link_summary">The URL of where the EMONCms platform is hostedr</string>
+    <string name="pref_edit_root_link_summary">The URL of where the EMONCms platform is hosted</string>
 
 
     <!-- Example settings for Data & Sync -->

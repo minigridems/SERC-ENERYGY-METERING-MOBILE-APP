@@ -321,6 +321,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // updated to reflect the new value, per the Android Design
             // guidelines.
             bindPreferenceSummaryToValue(findPreference("graph_x_axis_position_listpref"));
+            bindPreferenceSummaryToValue(findPreference("graph_default_duration_listpref"));
         }
 
 

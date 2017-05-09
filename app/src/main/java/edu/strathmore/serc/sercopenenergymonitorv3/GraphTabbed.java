@@ -191,7 +191,8 @@ public class GraphTabbed extends AppCompatActivity {
         Long tsLong = System.currentTimeMillis();
         // Setting the current time as now and the start time as one week from that date
         endTime = tsLong.toString();
-        startTime = String.valueOf(Long.parseLong(endTime) - 604800000L); //604,800,000 is one week in milliseconds
+        String defWeeks = appSettings.getString("graph_default_duration_listpref", "7");
+        startTime = String.valueOf(Long.parseLong(endTime) - (Long.parseLong(defWeeks))*86400000L); //86,400,000 is one day in milliseconds
 
 
         // Setting the date for the calendar dialog to be a week from today

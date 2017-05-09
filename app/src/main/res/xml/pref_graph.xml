@@ -1,16 +1,33 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <PreferenceCategory
+        android:title="General Graph Settings"
+        android:key="pref_graph_general_category">
 
-    <ListPreference
-        android:defaultValue="-1"
-        android:entries="@array/pref_graph_zero_titles"
-        android:entryValues="@array/pref_graph_zero_values"
-        android:key="graph_zero_listpref"
-        android:negativeButtonText="Cancel"
-        android:positiveButtonText="Apply"
-        android:summary="@string/pref_graph_zeroing_summary"
-        android:title="@string/pref_graph_zeroing"
-        />
+        <ListPreference
+            android:defaultValue="-1"
+            android:entries="@array/pref_graph_zero_titles"
+            android:entryValues="@array/pref_graph_zero_values"
+            android:key="graph_zero_listpref"
+            android:negativeButtonText="Cancel"
+            android:positiveButtonText="Apply"
+            android:summary="@string/pref_graph_zeroing_summary"
+            android:title="@string/pref_graph_zeroing"
+            />
+
+
+        <ListPreference
+            android:defaultValue="7"
+            android:entries="@array/graph_default_duration_entries"
+            android:entryValues="@array/graph_default_duration_values"
+            android:key="graph_default_duration_listpref"
+            android:title="@string/pref_graph_default_duration_title"
+            />
+
+
+    </PreferenceCategory>
+
+
 
     <!--Anathor way to implement the graph zeroing where the user enters the figure in hours-->
     <!-- <EditTextPreference
@@ -23,39 +40,57 @@
      android:title="@string/pref_graph_zeroing"
      />-->
 
-    <ListPreference
-        android:defaultValue="1"
-        android:entries="@array/pref_graph_line_color_entries"
-        android:entryValues="@array/pref_graph_line_color_values"
-        android:key="graph_line_color_listpref"
-        android:title="@string/pref_graph_line_color_title"
-        android:summary="@string/pref_graph_line_color_summary"
-        />
-
-    <SwitchPreference
-        android:defaultValue="true"
-        android:title="@string/pref_grid_draw_graph_title"
-        android:summary="@string/pref_grid_draw_graph_summary"
-        android:key="graph_draw_grid_pref"
-        />
 
 
+    <PreferenceCategory
+        android:title="Graph Appearance"
+        android:key="pref_graph_appearance_category">
 
-    <SwitchPreference
-        android:key="graph_y_axis_both_sides"
-        android:title="@string/pref_graph_y_axis_label_title"
-        android:summary="@string/pref_graph_y_axis_label_summary"
-        android:defaultValue="false"
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/pref_graph_line_color_entries"
+            android:entryValues="@array/pref_graph_line_color_values"
+            android:key="graph_line_color_listpref"
+            android:title="@string/pref_graph_line_color_title"
+            android:summary="@string/pref_graph_line_color_summary"
+            />
 
-        />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:title="@string/pref_grid_draw_graph_title"
+            android:summary="@string/pref_grid_draw_graph_summary"
+            android:key="graph_draw_grid_pref"
+            />
 
-    <ListPreference
-        android:defaultValue="1"
-        android:key="graph_x_axis_position_listpref"
-        android:title="@string/pref_graph_x_axis_position_title"
-        android:entries="@array/pref_graph_x_axis_position_entries"
-        android:entryValues="@array/pref_graph_x_axis_position_values"
-        />
+
+    </PreferenceCategory>
+
+
+
+    <PreferenceCategory
+        android:title="Label Settings"
+        android:key="pref_graph_label_category">
+
+        <SwitchPreference
+            android:key="graph_y_axis_both_sides"
+            android:title="@string/pref_graph_y_axis_label_title"
+            android:summary="@string/pref_graph_y_axis_label_summary"
+            android:defaultValue="false"
+
+            />
+
+        <ListPreference
+            android:defaultValue="1"
+            android:key="graph_x_axis_position_listpref"
+            android:title="@string/pref_graph_x_axis_position_title"
+            android:entries="@array/pref_graph_x_axis_position_entries"
+            android:entryValues="@array/pref_graph_x_axis_position_values"
+            />
+
+
+    </PreferenceCategory>
+
+
 
 
 
