@@ -776,6 +776,7 @@ public class GraphTabbed extends AppCompatActivity {
 
                 }
 
+                // Removes circles at every data point
                 dataSet.setDrawCircles(false);
 
                 /* As a last step, one needs to add the LineDataSet object (or objects) that were created
@@ -875,7 +876,7 @@ public class GraphTabbed extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            Log.i("SERC Log", "Loading Dialog onPostExecute exists: "+String.valueOf(dialog.isShowing()));
+            Log.i("SERC Log", "Loading Dialog onPostExecute exists: " + String.valueOf(dialog.isShowing()));
             if(dialog.isShowing()) {
                 dialog.dismiss();
             }

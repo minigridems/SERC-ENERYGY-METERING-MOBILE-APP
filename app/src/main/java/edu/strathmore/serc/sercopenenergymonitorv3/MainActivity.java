@@ -70,10 +70,10 @@ public class MainActivity extends AppCompatActivity {
         // Gets the API key from settings (Shared Preferences)
         SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
 
-        SharedPreferences.Editor editor = appSettings.edit();
+        /*SharedPreferences.Editor editor = appSettings.edit();
         editor.putString("api_key_edit", "36ec19e2a135f22b50883d555eea2114");
         editor.putString("root_link_editpref", "https://serc.strathmore.edu/emoncms");
-        editor.apply();
+        editor.apply();*/
 
         apiKey = appSettings.getString("api_key_edit", null);
         rootLinkAddress = appSettings.getString("root_link_editpref", null);
