@@ -191,8 +191,8 @@ public class GraphTabbed extends AppCompatActivity {
         Long tsLong = System.currentTimeMillis();
         // Setting the current time as now and the start time as one week from that date
         endTime = tsLong.toString();
-        String defWeeks = appSettings.getString("graph_default_duration_listpref", "7");
-        startTime = String.valueOf(Long.parseLong(endTime) - (Long.parseLong(defWeeks))*86400000L); //86,400,000 is one day in milliseconds
+        String defDays = appSettings.getString("graph_default_duration_listpref", "7");
+        startTime = String.valueOf(Long.parseLong(endTime) - (Long.parseLong(defDays))*86400000L); //86,400,000 is one day in milliseconds
 
 
         // Setting the date for the calendar dialog to be a week from today
@@ -204,8 +204,6 @@ public class GraphTabbed extends AppCompatActivity {
 
         // Updating the link to include the change in new UNIX start time and end time
         setLink();
-
-
 
     }
 
@@ -245,11 +243,7 @@ public class GraphTabbed extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-
-
+    // Fragment for the First Page of the Graph with date and time settings
     public static class GraphParametersFragment extends Fragment{
 
         // Empty constructor
@@ -334,13 +328,23 @@ public class GraphTabbed extends AppCompatActivity {
                 }
             });
 
+            // Set Help Text to show the default duration when "Draw Graph" is pressed
+            SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(getContext());
+            String defDays = appSettings.getString("graph_default_duration_listpref", "7");
+            TextView helpText = (TextView) parametersView.findViewById(R.id.help_text_draw_graph);
 
+            helpText.setText("Pressing \'Draw Graph\' without setting start or end date/time will " +
+                    "show values for the last " + defDays + " days.");
+
+
+            // Returning the View needed for onCreateView()
             return parametersView;
         }
 
 
     }
 
+    // Fragment for the second tab containing the actual graph
     public static class GraphFragment extends Fragment{
 
         // Empty constructor
