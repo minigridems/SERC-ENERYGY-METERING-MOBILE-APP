@@ -15,6 +15,18 @@
             android:title="@string/pref_graph_zeroing"
             />
 
+        <!--Another way to implement the graph zeroing where the user enters the
+        figure in hours-->
+        <!-- <EditTextPreference
+         android:defaultValue="1"
+         android:inputType="numberDecimal"
+         android:key="graph_inactivity_zero"
+         android:maxLines="1"
+         android:singleLine="true"
+         android:summary="@string/pref_graph_zeroing_summary"
+         android:title="@string/pref_graph_zeroing"
+         />-->
+
 
         <ListPreference
             android:defaultValue="7"
@@ -29,16 +41,7 @@
 
 
 
-    <!--Anathor way to implement the graph zeroing where the user enters the figure in hours-->
-    <!-- <EditTextPreference
-     android:defaultValue="1"
-     android:inputType="numberDecimal"
-     android:key="graph_inactivity_zero"
-     android:maxLines="1"
-     android:singleLine="true"
-     android:summary="@string/pref_graph_zeroing_summary"
-     android:title="@string/pref_graph_zeroing"
-     />-->
+
 
 
 
@@ -76,7 +79,14 @@
             android:title="@string/pref_graph_y_axis_label_title"
             android:summary="@string/pref_graph_y_axis_label_summary"
             android:defaultValue="false"
+            />
 
+        <ListPreference
+            android:defaultValue="45"
+            android:key="graph_x_axis_angle_listpref"
+            android:title="@string/pref_graph_x_axis_angle_title"
+            android:entries="@array/pref_graph_x_axis_angle_entries"
+            android:entryValues="@array/pref_graph_x_axis_angle_values"
             />
 
         <ListPreference

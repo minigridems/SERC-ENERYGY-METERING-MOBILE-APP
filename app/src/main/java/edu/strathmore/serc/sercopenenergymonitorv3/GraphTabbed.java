@@ -733,7 +733,8 @@ public class GraphTabbed extends AppCompatActivity {
 
 
                 // Sets the rotation angle of the x axis labels
-                styledXAxis.setLabelRotationAngle(45f);
+                String xAxisAngle = appSettings.getString("graph_x_axis_angle_listpref", "45");
+                styledXAxis.setLabelRotationAngle(Float.valueOf(xAxisAngle));
 
                 // Removing right Y Axis labels
                 YAxis rightYAxis = lineChart.getAxisRight();

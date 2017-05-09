@@ -47,9 +47,12 @@
 
 
     <string name="pref_graph_y_axis_label_title">Show Y-Axis Labels on both sides</string>
-    <string name="pref_graph_y_axis_label_summary">If turned off, the Y-Axis label will only be shown on the left</string>
+    <string name="pref_graph_y_axis_label_summary">If turned off, the Y-Axis label will only be
+        shown on the left side of the graph</string>
 
     <string name="pref_graph_x_axis_position_title">X-Axis Label Position</string>
+
+    <string name="pref_graph_x_axis_angle_title">Angle the X-Axis label makes with X-Axis</string>
 
     <string-array name="pref_graph_zero_titles">
         <item>None</item>
@@ -118,6 +121,26 @@
         <item>5</item>
         <item>6</item>
         <item>7</item>
+
+    </string-array>
+
+
+    <string-array name="pref_graph_x_axis_angle_entries">
+        <item>10\u00B0</item>
+        <item>30\u00B0</item>
+        <item>45\u00B0</item>
+        <item>60\u00B0</item>
+        <item>90\u00B0</item>
+
+    </string-array>
+
+    <string-array name="pref_graph_x_axis_angle_values">
+        <item>10</item>
+        <item>30</item>
+        <item>45</item>
+        <item>60</item>
+        <item>90</item>
+
 
     </string-array>
 
