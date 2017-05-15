@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
@@ -76,7 +77,9 @@ public class GraphTabbed extends AppCompatActivity {
     */
 
     // Placeholder. Not used currently
-    final static int INTERVAL = 900;
+    /*final static int INTERVAL = 900;*/
+    // Interval to poll data
+    private String interval;
 
     // Needed for link and is meant to be changed depending on the values input by the user
     // Made global variable so that they can be changed from any method
@@ -140,12 +143,15 @@ public class GraphTabbed extends AppCompatActivity {
         tabLayout.setupWithViewPager(mViewPager);
 
 
+
         // Get API Key and Root Link from settings
         SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
         ROOT_LINK = appSettings.getString("root_link_editpref", "");
         ROOT_LINK = ROOT_LINK + "feed/data.json?id=";
         API_KEY = appSettings.getString("api_key_edit","");
 
+        //Get interval from settings
+        interval = appSettings.getString("pref_interval", "900");
 
         //Getting data from received intent to start GraphActivity
         Bundle extras = getIntent().getExtras();
@@ -367,6 +373,7 @@ public class GraphTabbed extends AppCompatActivity {
     // Handles the behaviour for the DatePicker Dialog window for Start Date
     public static class DatePickerStartFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 
+        @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
@@ -414,6 +421,7 @@ public class GraphTabbed extends AppCompatActivity {
     // Handles the behaviour for the DatePicker Dialog window for End Date
     public static class DatePickerEndFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 
+        @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
@@ -460,6 +468,7 @@ public class GraphTabbed extends AppCompatActivity {
     // Handles the behaviour for the TimePicker Dialog for Start Time
     public static class TimePickerStartFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
 
+        @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             /* Use the last time chosen as the time that is selected when the dialog pops up. This is
@@ -500,6 +509,7 @@ public class GraphTabbed extends AppCompatActivity {
     // Handles the behaviour for the TimePicker Dialog for End Time
     public static class TimePickerEndFragment extends DialogFragment implements TimePickerDialog.OnTimeSetListener {
 
+        @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             /* Use the last time chosen as the time that is selected when the dialog pops up. This is
@@ -539,19 +549,11 @@ public class GraphTabbed extends AppCompatActivity {
 
 
 
-
-
-
-
-
-
-
-
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    private class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
@@ -593,22 +595,20 @@ public class GraphTabbed extends AppCompatActivity {
 
     private void setLink(){
         link = ROOT_LINK + String.valueOf(stationID) + "&start=" + startTime + "&end=" + endTime
-                + "&interval=" + INTERVAL + "&skipmissing=1&limitinterval=1&apikey=" + API_KEY;
+                + "&interval=" + interval + "&skipmissing=1&limitinterval=1&apikey=" + API_KEY;
 
     }
 
     // Method for drawing the graph. Requires the HTTP link to the JSON file
     private void drawGraph(String graphLink){
+        // Get app settings
+        SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
         // First update the link
+        interval = appSettings.getString("pref_interval", "900"); //get latest interval setting
         setLink();
 
-
-        /*View graphOnlyView = getLayoutInflater().inflate(R.layout.graph_only, null, false);
-        lineChart = (LineChart) graphOnlyView.findViewById(R.id.graph);*/
-
-
         // Gets the amount of time before Graph is zeroed from settings
-        SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
+
         float minutesInactivity = Float.valueOf(appSettings.getString("graph_zero_listpref", "-1"));
 
 
@@ -670,7 +670,7 @@ public class GraphTabbed extends AppCompatActivity {
                 Float threshold = minutesInactivity * 60000f; //Converts minutes to milliseconds
                 long previousX = Long.valueOf(startTime);
                 Long absTimeDiff;
-                Long zeroOffset = Long.valueOf(1000);
+                Long zeroOffset = 1000l;
                 if (threshold > 0f) {
                     // Since the xAxis and yAxis ArrayList are the same length either xAxis.size() or yAxis.size()
                     // could have been used

@@ -235,23 +235,25 @@ public class MainActivity extends AppCompatActivity {
     // Method used to add a "/" at the end and "https://" at the beginning of a link
     private String fixLink (String linkToFix){
         String mFixedString = "";
+        // Removes all spaces
+        String trimedLinkToFix = linkToFix.replace(" ","");
 
         // Gets the API key from settings (Shared Preferences)
         SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = appSettings.edit();
 
         // Adds a "/" if it is not the last character in the link
-        if (!linkToFix.matches(".*[/]")){
-            mFixedString = linkToFix + "/";
+        if (!trimedLinkToFix.matches(".*[/]")){
+            mFixedString = trimedLinkToFix + "/";
             editor.putString("root_link_editpref", mFixedString);
             editor.apply();
         }
         // Checks if the link starts with https:// or http:// and adds it if not
-        if (linkToFix.startsWith("https://") || linkToFix.startsWith("http://")){
-            mFixedString = linkToFix;
+        if (trimedLinkToFix.startsWith("https://") || trimedLinkToFix.startsWith("http://")){
+            mFixedString = trimedLinkToFix;
         }
         else {
-            mFixedString = "https://" + linkToFix;
+            mFixedString = "https://" + trimedLinkToFix;
             editor.putString("root_link_editpref", mFixedString);
             editor.apply();
         }
@@ -491,7 +493,7 @@ public class MainActivity extends AppCompatActivity {
 
         String result;
         try {
-            // Get API key from settings
+            // Get Root/API key from settings
             SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
             rootLinkAddress = appSettings.getString("root_link_editpref","");
             // Make sure link is not malformed

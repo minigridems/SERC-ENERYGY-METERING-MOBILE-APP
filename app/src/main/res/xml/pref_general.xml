@@ -31,6 +31,16 @@
     <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
          dismiss it. -->
     <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
+
+    <ListPreference
+        android:defaultValue="900"
+        android:key="pref_interval"
+        android:title="@string/pref_title_interval"
+        android:summary="@string/pref_summary_interval"
+        android:entries="@array/pref_interval_entries"
+        android:entryValues="@array/pref_interval_values"
+        />
+
     <ListPreference
         android:defaultValue="-1"
         android:entries="@array/pref_example_list_titles"
@@ -40,6 +50,8 @@
         android:positiveButtonText="@null"
         android:title="@string/pref_title_check_change_in_data"
         />
+
+
 
     <!--<EditTextPreference
         android:defaultValue="0"
