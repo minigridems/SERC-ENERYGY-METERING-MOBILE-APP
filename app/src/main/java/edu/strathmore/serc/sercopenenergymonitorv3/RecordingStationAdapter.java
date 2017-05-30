@@ -19,14 +19,14 @@ public class RecordingStationAdapter extends ArrayAdapter<RecordingStation> {
 
 
     public RecordingStationAdapter(Context context, ArrayList<RecordingStation> recordingStations){
+        // The constructor ArrayAdapter(Context context, int resource, T[] objects) has been used
+        // Since no resource id is used, we pass a 0 (generic) to avoid errors
         super(context, 0, recordingStations);
     }
 
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        //return super.getView(position, convertView, parent);
-
         // Check if the existing View is being reused, otherwise inflate a new view
         View listItemView = convertView;
         if(listItemView == null){

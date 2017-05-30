@@ -2,6 +2,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="edu.strathmore.serc.sercopenenergymonitorv3.GraphTabbed">
+
+    <group>
+
+
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
@@ -13,4 +17,23 @@
         android:orderInCategory="200"
         android:title="@string/action_reset_zoom"
         app:showAsAction="never" />
+
+
+
+
+
+    </group>
+
+    <!--<group
+        android:id="@+id/graph_menu_checkable_group"
+        android:checkableBehavior="all">
+
+        <item
+            android:id="@+id/action_disable_swipe"
+            android:orderInCategory="300"
+            android:title="Disable tab swipe in graph"
+            android:titleCondensed="Disable swipe"
+            android:checked="false"
+            app:showAsAction="never" />
+    </group>-->
 </menu>

@@ -228,21 +228,28 @@ public class GraphTabbed extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        // Switch statement to handle the menu clicks
+        switch (id){
+            case android.R.id.home:
+                onBackPressed();
+                return true;
 
-        //noinspection SimplifiableIfStatement
-        if (id == android.R.id.home){
-            onBackPressed();
-            return true;
-        }
-        if (id == R.id.action_settings) {
-            Intent openSettings = new Intent(this, SettingsActivity.class);
-            startActivity(openSettings);
-            return true;
-        }
+            case R.id.action_settings:
+                Intent openSettings = new Intent(this, SettingsActivity.class);
+                startActivity(openSettings);
+                return true;
 
-        if (id == R.id.action_reset_zoom) {
-            lineChart.fitScreen();
-            return true;
+            case R.id.action_reset_zoom:
+                lineChart.fitScreen();
+                return true;
+
+          /*  case R.id.action_disable_swipe:
+                if (item.isChecked()) {
+                    item.setChecked(false);
+                } else{
+                    item.setChecked(true);
+                }
+            */
         }
 
 

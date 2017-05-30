@@ -88,7 +88,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:drawSelectorOnTop="false"
-
             android:divider="@null"
             android:dividerHeight="0dp"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -97,6 +96,5 @@
         </ListView>
 
     </android.support.v4.widget.SwipeRefreshLayout>
-
 
 </android.support.design.widget.CoordinatorLayout>

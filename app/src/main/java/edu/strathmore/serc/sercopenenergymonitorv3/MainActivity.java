@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
         apiKey = appSettings.getString("api_key_edit", null);
         rootLinkAddress = appSettings.getString("root_link_editpref", null);
-        // Make sure the link is null before trying to fix it
+        // Make sure the link is not null before trying to fix it
         if (rootLinkAddress != null) {
             rootLinkAddress = fixLink(rootLinkAddress);
         }
@@ -119,8 +119,6 @@ public class MainActivity extends AppCompatActivity {
              */
             rootLinkAddress = appSettings.getString("root_link_editpref", "");
             rootLinkAddress = fixLink(rootLinkAddress);
-
-
 
         }
 
@@ -232,35 +230,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    // Method used to add a "/" at the end and "https://" at the beginning of a link
-    private String fixLink (String linkToFix){
-        String mFixedString = "";
-        // Removes all spaces
-        String trimedLinkToFix = linkToFix.replace(" ","");
-
-        // Gets the API key from settings (Shared Preferences)
-        SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = appSettings.edit();
-
-        // Adds a "/" if it is not the last character in the link
-        if (!trimedLinkToFix.matches(".*[/]")){
-            mFixedString = trimedLinkToFix + "/";
-            editor.putString("root_link_editpref", mFixedString);
-            editor.apply();
-        }
-        // Checks if the link starts with https:// or http:// and adds it if not
-        if (trimedLinkToFix.startsWith("https://") || trimedLinkToFix.startsWith("http://")){
-            mFixedString = trimedLinkToFix;
-        }
-        else {
-            mFixedString = "https://" + trimedLinkToFix;
-            editor.putString("root_link_editpref", mFixedString);
-            editor.apply();
-        }
-
-        return mFixedString;
-    }
-
+    // Creates the menu from the xml layout
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -268,6 +238,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    // Defines the actions to take on button click for the menu items
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -295,6 +266,196 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    // Method that calls CmsApiCall class and returns an ArrayList of Recording Station objects
+    private ArrayList<RecordingStation> getRecordingStationsList(){
+
+        // Create an ArrayList of RecordingStation Objects with the variable name recordingStations
+        ArrayList<RecordingStation> recordingStations = new ArrayList<>();
+
+        String result;
+        try {
+            // Get Root/API key from settings
+            SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
+            rootLinkAddress = appSettings.getString("root_link_editpref","");
+            // Make sure link is not malformed
+            rootLinkAddress = fixLink(rootLinkAddress);
+
+            apiKey = appSettings.getString("api_key_edit", "");
+            // Call CmsApiCall using the MainActivity as the context. The result is the JSON file in
+            // form of a continuous String.
+            result = new CmsApiCall(MainActivity.this).execute(rootLinkAddress+"feed/list.json&apikey="+apiKey).get();
+
+            // This changes the JSON String into a JSON object. The response for this call consists of
+            // one JSON array with individual objects for each node added to the Emon CMS platform
+            JSONArray parentJSON = new JSONArray(result);
+            JSONObject childJSON;
+
+
+            // Cycles through all objects within the JSON array
+            for (int i=0; i<parentJSON.length(); i++){
+
+                // Initialising the variables needed for the RecordingStation constructor
+                int id =0;
+                String name="";
+                String tag="";
+                int time=0;
+                int powerReading=0;
+
+                // Setting childJSON as an object in the JSON array at position i
+                childJSON = parentJSON.getJSONObject(i);
+
+                //Checks if ID field exists and is not null
+                if (childJSON.has("id") && !childJSON.isNull("id")){
+                    id = childJSON.getInt("id");
+                }
+                //Checks if name field exists and is not null
+                if (childJSON.has("name") && !childJSON.isNull("name")){
+                    name = childJSON.getString("name");
+                }
+                //Checks if tag field exists and is not null
+                if (childJSON.has("tag") && !childJSON.isNull("tag")){
+                    tag = childJSON.getString("tag");
+                }
+                //Checks if time field exists and is not null
+                if (childJSON.has("time") && !childJSON.isNull("time")){
+                    time = childJSON.getInt("time");
+                }
+                //Checks if value field exists and is not null
+                if (childJSON.has("value") && !childJSON.isNull("value")){
+                    powerReading = childJSON.getInt("value");
+                }
+
+                //Creating new RecordingStation object with the values and adding it to the ArrayList for each loop
+                RecordingStation recordingStation = new RecordingStation(id, name, tag, time, powerReading);
+                recordingStations.add(recordingStation);
+
+            }
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return recordingStations;
+    }
+
+    // Method that checks which of the stations from the full list is in settings
+    private ArrayList<RecordingStation> getRecordingStationInSettings(ArrayList<RecordingStation> recordingStations){
+        /*
+         * This function takes in an array list of the recording stations and returns an array list
+         * of recording stations which is a subset of the of the input. This subset contains all the
+         * recording stations contained within the setting preferences
+         */
+        Log.i("SERC Log", "Pulling preferences");
+        SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
+        Set<String> recordingStationsInSettings = appSettings.getStringSet("selected_station_list", Collections.<String>emptySet());
+        Set<String> chosenRecordingStations = new HashSet<>();
+
+
+        // Creates an array list of names of the stations in the form "TAG - NAME"
+        Log.i("SERC Log:", "Building List of Recording Station Names");
+        ArrayList<String> recordingStationNames = new ArrayList<>();
+        for (int i=0; i<recordingStations.size(); i++){
+            recordingStationNames.add(recordingStations.get(i).getStationTag() + " - " + recordingStations.get(i).getStationName());
+        }
+
+        // Sort List Alphabetically
+        Collections.sort(recordingStationNames, String.CASE_INSENSITIVE_ORDER);
+
+        // Adds these names to a new String Array List to chosenRecordingStations
+        Log.i("SERC Log:", "Adding the names to settings");
+        chosenRecordingStations.addAll(recordingStationNames);
+
+        Log.i("SERC Log:", "Saving new settings");
+        SharedPreferences.Editor editor = appSettings.edit();
+        editor.putStringSet("full_station_list", chosenRecordingStations);
+
+        Log.i("SERC Log", "Checking if selected_station_list in SharedPrefs is empty: " + String.valueOf(recordingStations.isEmpty()));
+        if (recordingStationsInSettings.isEmpty()) {
+            // Adds full list in case selected list is empty e.g. on first launch
+            editor.putStringSet("selected_station_list", chosenRecordingStations);
+            editor.apply();
+        }
+
+        // Logging entries in the list
+        Log.i("SERC Log:", "selected_station_list size: "+ String.valueOf(recordingStationsInSettings.size()));
+        for (int i=0; i<recordingStationsInSettings.size(); i++){
+            Log.i("SERC Log:", "selected_station_list " + String.valueOf(i) + ": "+ String.valueOf(recordingStationsInSettings.toArray()[i]));
+        }
+
+        ArrayList<RecordingStation> recordingStationsForAdapter = new ArrayList<>();
+        for (String nameTag:recordingStationsInSettings){
+            for (int j = 0; j < recordingStations.size(); j++){
+                String currentStn = recordingStations.get(j).getStationTag() + " - " + recordingStations.get(j).getStationName();
+                Log.i("SERC Log", "currentStn: " + currentStn);
+                Log.i("SERC Log", "nameTag: " + nameTag);
+                Log.i("SERC Log", "nameTag.contains(currentStn): " + String.valueOf(nameTag.contains(currentStn)));
+
+                if (nameTag.contains(currentStn)){
+                    recordingStationsForAdapter.add(recordingStations.get(j));
+
+                }
+            }
+        }
+
+        return recordingStationsForAdapter;
+    }
+
+    //Method to refresh content. Called when user swipes up to refresh
+    private void refreshContent(){
+        // Full list of Stations from the platform
+        ArrayList<RecordingStation> recordingStationsList = getRecordingStationsList();
+
+        // Sublist of recording stations as chosen in settings
+        ArrayList<RecordingStation> recordingStationsForAdapter = getRecordingStationInSettings(recordingStationsList);
+
+        // Arranges the Stations alphabetically by tag name
+        if (recordingStationsForAdapter.size()>1){
+            Collections.sort(recordingStationsForAdapter, new Comparator<RecordingStation>() {
+                @Override
+                public int compare(RecordingStation o1, RecordingStation o2) {
+                    return o1.getStationTag().compareTo(o2.getStationTag());
+                }
+            });
+        }
+
+        // Clear the adapter and load up new content to adapter
+        adapter.clear();
+        adapter.addAll(recordingStationsForAdapter);
+        swipeRefreshLayout.setRefreshing(false); //stop the refresh dialog once finished
+    }
+
+    // Method used to add a "/" at the end and "https://" at the beginning of a link and to remove spaces
+    private String fixLink (String linkToFix){
+        String mFixedString = "";
+        // Removes all spaces
+        String trimedLinkToFix = linkToFix.replace(" ","");
+
+        // Gets the API key from settings (Shared Preferences)
+        SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = appSettings.edit();
+
+        // Adds a "/" if it is not the last character in the link
+        if (!trimedLinkToFix.matches(".*[/]")){
+            mFixedString = trimedLinkToFix + "/";
+            editor.putString("root_link_editpref", mFixedString);
+            editor.apply();
+        }
+        // Checks if the link starts with https:// or http:// and adds it if not
+        if (trimedLinkToFix.startsWith("https://") || trimedLinkToFix.startsWith("http://")){
+            mFixedString = trimedLinkToFix;
+        }
+        else {
+            mFixedString = "https://" + trimedLinkToFix;
+            editor.putString("root_link_editpref", mFixedString);
+            editor.apply();
+        }
+
+        return mFixedString;
+    }
 
 
     // This Fragment class defines the pop-up that shows up if an API key is not found/or provided by the user
@@ -329,7 +490,7 @@ public class MainActivity extends AppCompatActivity {
 
 
             // Inflate and set the layout for the dialog
-            // Pass null as the parent view because its going in the dialog layout
+            // Pass null as the parent view because it's going in the dialog layout
             View view = inflater.inflate(R.layout.dialog_login_api, null);
             dialogBuilder.setView(view);
             // Get the edit text view from the xml
@@ -456,177 +617,6 @@ public class MainActivity extends AppCompatActivity {
             return dialogBuilder.create();
         }
     }
-
-
-    //Method to refresh content. Called when user swipes up to refresh
-
-
-    // Refreshes the content in the main screen with the latest values
-    private void refreshContent(){
-        // Full list of Stations from the platform
-        ArrayList<RecordingStation> recordingStationsList = getRecordingStationsList();
-
-        // Sublist of recording stations as chosen in settings
-        ArrayList<RecordingStation> recordingStationsForAdapter = getRecordingStationInSettings(recordingStationsList);
-
-        // Arranges the Stations alphabetically by tag name
-        if (recordingStationsForAdapter.size()>1){
-            Collections.sort(recordingStationsForAdapter, new Comparator<RecordingStation>() {
-                @Override
-                public int compare(RecordingStation o1, RecordingStation o2) {
-                    return o1.getStationTag().compareTo(o2.getStationTag());
-                }
-            });
-        }
-
-        // Clear the adapter and load up new content to adapter
-        adapter.clear();
-        adapter.addAll(recordingStationsForAdapter);
-        swipeRefreshLayout.setRefreshing(false); //stop the refresh dialog once finished
-    }
-
-    // Method that calls CmsApiCall class and returns an ArrayList of Recording Station objects
-    private ArrayList<RecordingStation> getRecordingStationsList(){
-
-        // Create an ArrayList of RecordingStation Objects with the variable name recordingStations
-        ArrayList<RecordingStation> recordingStations = new ArrayList<>();
-
-        String result;
-        try {
-            // Get Root/API key from settings
-            SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
-            rootLinkAddress = appSettings.getString("root_link_editpref","");
-            // Make sure link is not malformed
-            rootLinkAddress = fixLink(rootLinkAddress);
-
-            apiKey = appSettings.getString("api_key_edit", "");
-            // Call CmsApiCall using the MainActivity as the context. The result is the JSON file in
-            // form of a continuous String.
-            result = new CmsApiCall(MainActivity.this).execute(rootLinkAddress+"feed/list.json&apikey="+apiKey).get();
-
-            // This changes the JSON String into a JSON object. The response for this call consists of
-            // one JSON array with individual objects for each node added to the Emon CMS platform
-            JSONArray parentJSON = new JSONArray(result);
-            JSONObject childJSON;
-
-
-            // Cycles through all objects within the JSON array
-            for (int i=0; i<parentJSON.length(); i++){
-
-                // Initialising the variables needed for the RecordingStation constructor
-                int id =0;
-                String name="";
-                String tag="";
-                int time=0;
-                int powerReading=0;
-
-                // Setting childJSON as an object in the JSON array at position i
-                childJSON = parentJSON.getJSONObject(i);
-
-                //Checks if ID field exists and is not null
-                if (childJSON.has("id") && !childJSON.isNull("id")){
-                    id = childJSON.getInt("id");
-                }
-                //Checks if name field exists and is not null
-                if (childJSON.has("name") && !childJSON.isNull("name")){
-                    name = childJSON.getString("name");
-                }
-                //Checks if tag field exists and is not null
-                if (childJSON.has("tag") && !childJSON.isNull("tag")){
-                    tag = childJSON.getString("tag");
-                }
-                //Checks if time field exists and is not null
-                if (childJSON.has("time") && !childJSON.isNull("time")){
-                    time = childJSON.getInt("time");
-                }
-                //Checks if value field exists and is not null
-                if (childJSON.has("value") && !childJSON.isNull("value")){
-                    powerReading = childJSON.getInt("value");
-                }
-
-                //Creating new RecordingStation object with the values and adding it to the ArrayList for each loop
-                RecordingStation recordingStation = new RecordingStation(id, name, tag, time, powerReading);
-                recordingStations.add(recordingStation);
-
-            }
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return recordingStations;
-    }
-
-    // Method that checks which of the statations from the full list is in settings
-    private ArrayList<RecordingStation> getRecordingStationInSettings(ArrayList<RecordingStation> recordingStations){
-        /*
-         * This function takes in an array list of the recording stations and returns an array list
-         * of recording stations which is a subset of the of the input. This subset contains all the
-         * recording stations contained within the setting prefferences
-         */
-        Log.i("SERC Log", "Pulling preferences");
-        SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
-        Set<String> recordingStationsInSettings = appSettings.getStringSet("selected_station_list", Collections.<String>emptySet());
-        Set<String> chosenRecordingStations = new HashSet<>();
-
-
-        // Creates an array list of names of the stations in the form "TAG - NAME"
-        Log.i("SERC Log:", "Building List of Recording Station Names");
-        ArrayList<String> recordingStationNames = new ArrayList<>();
-        for (int i=0; i<recordingStations.size(); i++){
-            recordingStationNames.add(recordingStations.get(i).getStationTag() + " - " + recordingStations.get(i).getStationName());
-        }
-
-        // Sort List Alphabetically
-        Collections.sort(recordingStationNames, String.CASE_INSENSITIVE_ORDER);
-
-        // Adds these names to a new String Array List to chosenRecordingStations
-        Log.i("SERC Log:", "Adding the names to settings");
-        chosenRecordingStations.addAll(recordingStationNames);
-
-        Log.i("SERC Log:", "Saving new settings");
-        SharedPreferences.Editor editor = appSettings.edit();
-        editor.putStringSet("full_station_list", chosenRecordingStations);
-
-        Log.i("SERC Log", "Checking if selected_station_list in SharedPrefs is empty: " + String.valueOf(recordingStations.isEmpty()));
-        if (recordingStationsInSettings.isEmpty()) {
-            // Adds full list in case selected list is empty e.g. on first launch
-            editor.putStringSet("selected_station_list", chosenRecordingStations);
-            editor.apply();
-        }
-
-        // Logging entries in the list
-        Log.i("SERC Log:", "selected_station_list size: "+ String.valueOf(recordingStationsInSettings.size()));
-        for (int i=0; i<recordingStationsInSettings.size(); i++){
-            Log.i("SERC Log:", "selected_station_list " + String.valueOf(i) + ": "+ String.valueOf(recordingStationsInSettings.toArray()[i]));
-        }
-
-        ArrayList<RecordingStation> recordingStationsForAdapter = new ArrayList<>();
-        for (String nameTag:recordingStationsInSettings){
-            //String nameTag = recordingStationsInSettings;
-            for (int j = 0; j < recordingStations.size(); j++){
-                String currentStn = recordingStations.get(j).getStationTag() + " - " + recordingStations.get(j).getStationName();
-                Log.i("SERC Log", "currentStn: " + currentStn);
-                Log.i("SERC Log", "nameTag: " + nameTag);
-                //Log.i("SERC Log", "nameTag==currentStn " + String.valueOf(nameTag==currentStn));
-                Log.i("SERC Log", "nameTag.contains(currentStn): " + String.valueOf(nameTag.contains(currentStn)));
-
-                if (nameTag.contains(currentStn)){
-                    recordingStationsForAdapter.add(recordingStations.get(j));
-
-                }
-            }
-        }
-
-        return recordingStationsForAdapter;
-    }
-
-
-
 
 
 }

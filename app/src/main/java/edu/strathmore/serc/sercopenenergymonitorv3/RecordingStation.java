@@ -8,13 +8,14 @@ package edu.strathmore.serc.sercopenenergymonitorv3;
  */
 
 public class RecordingStation {
+    // Attributes for the recording station
     private int mStationID;
     private String mStationName;
     private String mStationTag;
     private long mStationTime;
     private int mStationValueReading;
 
-
+    // Public constructor for the Recording Station class
     public RecordingStation(int stationID, String stationName, String stationTag, int stationTime, int stationValueReading){
         mStationID = stationID;
         mStationName = stationName;
@@ -23,6 +24,8 @@ public class RecordingStation {
         mStationValueReading = stationValueReading;
 
     }
+
+    // Getter methods for the various attributes
 
     public int getStationID(){
         return mStationID;
