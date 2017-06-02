@@ -131,7 +131,7 @@ public class GraphTabbed extends AppCompatActivity {
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-        // Create the adapter that will return a fragment for each of the three
+        // Create the adapter that will return a fragment for each of the two
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
@@ -587,6 +587,7 @@ public class GraphTabbed extends AppCompatActivity {
             return 2;
         }
 
+        // Change the tab titles here
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
@@ -599,7 +600,7 @@ public class GraphTabbed extends AppCompatActivity {
         }
     }
 
-
+    // Used to update the String URL
     private void setLink(){
         link = ROOT_LINK + String.valueOf(stationID) + "&start=" + startTime + "&end=" + endTime
                 + "&interval=" + interval + "&skipmissing=1&limitinterval=1&apikey=" + API_KEY;
@@ -615,7 +616,6 @@ public class GraphTabbed extends AppCompatActivity {
         setLink();
 
         // Gets the amount of time before Graph is zeroed from settings
-
         float minutesInactivity = Float.valueOf(appSettings.getString("graph_zero_listpref", "-1"));
 
 
@@ -709,18 +709,18 @@ public class GraphTabbed extends AppCompatActivity {
 
 
                 // The following steps are done to prepare for the new data on the graph
-                Log.i("SERC Log", "Clearing previous graph");
                 lineChart.clear();
                 lineChart.invalidate(); //refresh the data
                 lineChart.fitScreen();  // set the zoom level back to the default
 
                 // Gets the preference for whether or not the grid will be drawn
                 boolean toDrawGrid = appSettings.getBoolean("graph_draw_grid_pref", true);
+                // For the X Axis grid
                 lineChart.getXAxis().setDrawGridLines(toDrawGrid);
+                // For both sets of the Y axis
                 lineChart.getAxisLeft().setDrawGridLines(toDrawGrid);
                 lineChart.getAxisRight().setDrawGridLines(toDrawGrid);
 
-                Log.i("SERC Log", "Styling xAxis");
                 // Gets the x axis
                 XAxis styledXAxis = lineChart.getXAxis();
                 // Sets the x axis labels to appear in the according to settings
@@ -822,7 +822,7 @@ public class GraphTabbed extends AppCompatActivity {
 
     }
 
-    // AsyncTask class that modifys the global variable result
+    // AsyncTask class that modifies the global variable result
     private class CmsApi extends AsyncTask<String, Void, String> {
 
 
