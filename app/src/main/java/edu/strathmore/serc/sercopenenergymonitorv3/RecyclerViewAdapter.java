@@ -120,7 +120,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     /*
     * The following 2 classes are used to help clear and load new data to the adapter
     * */
-    // Clean all elements of the recycler
+    // Clear all elements of the recycler
     public void clear(){
         mRecordingStations.clear();
         notifyDataSetChanged();
