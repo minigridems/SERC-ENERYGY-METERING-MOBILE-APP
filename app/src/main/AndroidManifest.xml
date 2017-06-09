@@ -49,8 +49,7 @@
         <activity
             android:name=".GraphActivity"
             android:label="@string/graph_title"
-            android:parentActivityName=".MainActivity"
-           >
+            android:parentActivityName=".MainActivity">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
@@ -61,14 +60,18 @@
         <activity
             android:name=".GraphTabbed"
             android:label="@string/title_activity_graph_tabbed"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:parentActivityName="edu.strathmore.serc.sercopenenergymonitorv3.MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.strathmore.serc.sercopenenergymonitorv3.MainActivity" />
         </activity>
+        <activity
+            android:name=".MainActivityRecyclerView"
+            android:label="@string/title_activity_main_recycler_view"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

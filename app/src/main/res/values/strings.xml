@@ -180,8 +180,6 @@
     </string-array>
 
 
-
-
     <!--Account Settings-->
     <string name="pref_header_account">Account</string>
 
@@ -297,6 +295,7 @@
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="pref_title_interval">Fetch Interval</string>
     <string name="pref_summary_interval">The amount of time, in milliseconds, between timestamps that data is polled</string>
+    <string name="title_activity_main_recycler_view">MainActivityRecyclerView</string>
 
 
 </resources>

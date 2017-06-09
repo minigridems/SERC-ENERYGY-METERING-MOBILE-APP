@@ -12,6 +12,8 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,25 +21,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends AppCompatActivity {
+import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
+
+public class MainActivityRecyclerView extends AppCompatActivity {
 
     //For the call to be made to the CMS API
     private String rootLinkAddress;
@@ -47,9 +47,10 @@ public class MainActivity extends AppCompatActivity {
     // For the SwipeRefreshLayout used both in the onCreate and refresh method
     private SwipeRefreshLayout swipeRefreshLayout;
 
-    // For the adapter used in the ListView of the Main Activity/Screen.
+    // For the adapter used in the RecyclerView  of the Main Activity/Screen.
     // Needs to be global as it is used both in the onCreate and refresh method
-    private RecordingStationAdapter adapter;
+    private RecyclerViewAdapter adapter;
+
 
 
 
@@ -60,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i("SERC Log", "OnCreate");
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_recycler_view);
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -143,20 +144,31 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Setting the RecordingStationAdapter<RecordingStation> to the ListView to display
-        adapter = new RecordingStationAdapter(this, recordingStationsForAdapter);
+        /*adapter = new RecordingStationAdapter(this, recordingStationsForAdapter);
         ListView listView = (ListView) findViewById(R.id.polling_results_list_view);
-        listView.setAdapter(adapter);
+        listView.setAdapter(adapter);*/
+
+
+        // Binding the adapter to the RecyclerView
+        adapter = new RecyclerViewAdapter(this, recordingStationsForAdapter);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_main_activity);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setItemAnimator(new SlideInUpAnimator());
+
+
+
 
         /*
          * OnItemClickLister for each item in the ListView. When an item in the listview is clicked,
          * this sends an intent to open GraphActivity (while passing some information about the
          * object to GraphActivity within the intent)
          */
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        /*listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 // Intent to open GraphActivity
-                Intent graphIntent = new Intent(MainActivity.this, GraphTabbed.class);
+                Intent graphIntent = new Intent(MainActivityRecyclerView.this, GraphTabbed.class);
 
                 // Getting the station ID, name and tag of the Clicked item to be sent with the intent
                 graphIntent.putExtra("Station_ID", adapter.getItem(position).getStationID());
@@ -167,17 +179,33 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(graphIntent);
 
             }
+        });*/
+
+        adapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View itemView, int position) {
+                Intent graphIntent = new Intent(MainActivityRecyclerView.this, GraphTabbed.class);
+
+                // Getting the station ID, name and tag of the Clicked item to be sent with the intent
+                graphIntent.putExtra("Station_ID", adapter.getRecordingStation(position).getStationID());
+                graphIntent.putExtra("Station_name", adapter.getRecordingStation(position).getStationName());
+                graphIntent.putExtra("Station_tag", adapter.getRecordingStation(position).getStationTag());
+
+                // Start GraphActivity
+                startActivity(graphIntent);
+            }
         });
+
 
 
         /**
          * This is the listener for when a user long clicks/presses on an item in the listview.
          * This opens a Dialog showing all the information stored for the that RecordingStation object
          */
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        /*listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                AlertDialog.Builder  alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                AlertDialog.Builder  alertDialogBuilder = new AlertDialog.Builder(MainActivityRecyclerView.this);
                 alertDialogBuilder.setTitle("Station Details");
                 alertDialogBuilder.setIcon(R.mipmap.ic_launcher_serc);
                 alertDialogBuilder.setPositiveButton("Ok", null);
@@ -205,16 +233,16 @@ public class MainActivity extends AppCompatActivity {
                 AlertDialog alertDialog = alertDialogBuilder.create();
                 alertDialog.show();
 
-                /* This returns a boolean to indicate whether you have consumed the event and it
+                *//* This returns a boolean to indicate whether you have consumed the event and it
                  * should not be carried further. That is, return true to indicate that you have
                  * handled the event and it should stop here; return false if you have not handled
                  * it and/or the event should continue to any other on-click listeners.
                  * If false is returned, OnItemClickListener will be triggered resulting in GraphActivity
                  * being opened
-                 */
+                 *//*
                 return true;
             }
-        });
+        });*/
 
         // onClick Listener for Swiping up to refresh feed. Calls the refreshContent method
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
@@ -262,12 +290,6 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
-        if (id==R.id.recycler_main_activity){
-            Intent openRecyclerIntent = new Intent(this, MainActivityRecyclerView.class);
-            startActivity(openRecyclerIntent);
-            return true;
-        }
-
 
         return super.onOptionsItemSelected(item);
     }
@@ -289,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
             apiKey = appSettings.getString("api_key_edit", "");
             // Call CmsApiCall using the MainActivity as the context. The result is the JSON file in
             // form of a continuous String.
-            result = new CmsApiCall(MainActivity.this).execute(rootLinkAddress+"feed/list.json&apikey="+apiKey).get();
+            result = new CmsApiCall(MainActivityRecyclerView.this).execute(rootLinkAddress+"feed/list.json&apikey="+apiKey).get();
 
             // This changes the JSON String into a JSON object. The response for this call consists of
             // one JSON array with individual objects for each node added to the Emon CMS platform
@@ -429,8 +451,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Clear the adapter and load up new content to adapter
+
         adapter.clear();
         adapter.addAll(recordingStationsForAdapter);
+
         swipeRefreshLayout.setRefreshing(false); //stop the refresh dialog once finished
     }
 
@@ -524,7 +548,7 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString("api_key_edit", userInput);
                     editor.apply();
 
-                    ((MainActivity)getActivity()).refreshContent();
+                    ((MainActivityRecyclerView)getActivity()).refreshContent();
 
                 }
             });
@@ -606,7 +630,7 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString("root_link_editpref", userInput);
                     editor.apply();
 
-                    ((MainActivity)getActivity()).refreshContent();
+                    ((MainActivityRecyclerView)getActivity()).refreshContent();
 
                 }
             });

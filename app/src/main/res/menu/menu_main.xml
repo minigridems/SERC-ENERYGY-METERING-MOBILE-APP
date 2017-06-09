@@ -24,4 +24,11 @@
         app:showAsAction="never"
         />
 
+    <item
+        android:id="@+id/recycler_main_activity"
+        android:orderInCategory="2000"
+        android:title="Recycler Main"
+        app:showAsAction="never"
+        />
+
 </menu>
