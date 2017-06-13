@@ -38,6 +38,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         listener = clickListener;
     }
 
+    public void setOnItemLongClickListener (OnItemClickListener clickListener){
+        listener = clickListener;
+    }
+
 
     public class ViewHolder extends RecyclerView.ViewHolder{
 
@@ -65,6 +69,26 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                             listener.onItemClick(itemView, position);
                         }
                     }
+                }
+            });
+
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if(listener != null){
+                        int position = getAdapterPosition();
+                        // Make sure position exists in RecyclerView
+                        if (position != RecyclerView.NO_POSITION){
+                            listener.onItemClick(itemView, position);
+                        }
+                    }
+                     /* This returns a boolean to indicate whether you have consumed the event and it
+                     * should not be carried further. That is, return true to indicate that you have
+                     * handled the event and it should stop here; return false if you have not handled
+                     * it and/or the event should continue to any other on-click listeners.
+                     * If false is returned, OnItemClickListener will be triggered resulting in GraphActivity
+                     * being opened*/
+                    return true;
                 }
             });
 
@@ -139,8 +163,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             notifyItemChanged(i);
         }
 
-        /*mRecordingStations.addAll(recordingStations);
-        notifyDataSetChanged();*/
     }
 
 

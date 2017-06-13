@@ -28,9 +28,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -143,11 +145,6 @@ public class MainActivityRecyclerView extends AppCompatActivity {
         }
 
 
-        // Setting the RecordingStationAdapter<RecordingStation> to the ListView to display
-        /*adapter = new RecordingStationAdapter(this, recordingStationsForAdapter);
-        ListView listView = (ListView) findViewById(R.id.polling_results_list_view);
-        listView.setAdapter(adapter);*/
-
 
         // Binding the adapter to the RecyclerView
         adapter = new RecyclerViewAdapter(this, recordingStationsForAdapter);
@@ -186,22 +183,22 @@ public class MainActivityRecyclerView extends AppCompatActivity {
          * This is the listener for when a user long clicks/presses on an item in the listview.
          * This opens a Dialog showing all the information stored for the that RecordingStation object
          */
-        /*listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        adapter.setOnItemLongClickListener(new RecyclerViewAdapter.OnItemClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(View itemView, int position) {
                 AlertDialog.Builder  alertDialogBuilder = new AlertDialog.Builder(MainActivityRecyclerView.this);
                 alertDialogBuilder.setTitle("Station Details");
                 alertDialogBuilder.setIcon(R.mipmap.ic_launcher_serc);
                 alertDialogBuilder.setPositiveButton("Ok", null);
 
-                Date currentTime = new Date(adapter.getItem(position).getStationTime()*1000);
+                Date currentTime = new Date(adapter.getRecordingStation(position).getStationTime()*1000);
                 SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy h:mm a");
                 String stationTime = sdf.format(currentTime);
                 CharSequence[] stationDetails = {
-                        "Station ID: " + String.valueOf(adapter.getItem(position).getStationID()),
-                        "Station Name: " + adapter.getItem(position).getStationName(),
-                        "Station Tag: " + adapter.getItem(position).getStationTag(),
-                        "Current Reading: " + String.valueOf(adapter.getItem(position).getStationValueReading()),
+                        "Station ID: " + String.valueOf(adapter.getRecordingStation(position).getStationID()),
+                        "Station Name: " + adapter.getRecordingStation(position).getStationName(),
+                        "Station Tag: " + adapter.getRecordingStation(position).getStationTag(),
+                        "Current Reading: " + String.valueOf(adapter.getRecordingStation(position).getStationValueReading()),
                         "Current Time: " + stationTime};
 
                 alertDialogBuilder.setItems(stationDetails, new DialogInterface.OnClickListener() {
@@ -216,17 +213,8 @@ public class MainActivityRecyclerView extends AppCompatActivity {
 
                 AlertDialog alertDialog = alertDialogBuilder.create();
                 alertDialog.show();
-
-                *//* This returns a boolean to indicate whether you have consumed the event and it
-                 * should not be carried further. That is, return true to indicate that you have
-                 * handled the event and it should stop here; return false if you have not handled
-                 * it and/or the event should continue to any other on-click listeners.
-                 * If false is returned, OnItemClickListener will be triggered resulting in GraphActivity
-                 * being opened
-                 *//*
-                return true;
             }
-        });*/
+        });
 
         // onClick Listener for Swiping up to refresh feed. Calls the refreshContent method
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
