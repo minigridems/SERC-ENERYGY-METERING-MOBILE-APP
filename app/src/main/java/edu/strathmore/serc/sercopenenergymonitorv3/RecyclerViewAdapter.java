@@ -18,6 +18,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     // Member variable for the list of RecordingStation objects
     ArrayList<RecordingStation> mRecordingStations;
+    // Member variable to keep track of the number of objects in adapter
+    private int numberOfRecordingStations;
     // Storing context for easy access
     Context mContext;
 
@@ -74,6 +76,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public RecyclerViewAdapter(Context context, ArrayList<RecordingStation> recordingStations){
         mContext = context;
         mRecordingStations = recordingStations;
+        numberOfRecordingStations = recordingStations.size();
     }
 
     // Usually involves inflating a layout from XML and returning the holder
@@ -123,12 +126,21 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     // Clear all elements of the recycler
     public void clear(){
         mRecordingStations.clear();
-        notifyDataSetChanged();
+        for (int i=0; i<numberOfRecordingStations; i++){
+            notifyItemRemoved(i);
+        }
     }
     // Add list of items
     public void addAll(ArrayList<RecordingStation> recordingStations){
-        mRecordingStations.addAll(recordingStations);
-        notifyDataSetChanged();
+        numberOfRecordingStations = recordingStations.size();
+        for (int i=0; i<numberOfRecordingStations; i++){
+
+            mRecordingStations.add(recordingStations.get(i));
+            notifyItemChanged(i);
+        }
+
+        /*mRecordingStations.addAll(recordingStations);
+        notifyDataSetChanged();*/
     }
 
 

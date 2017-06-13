@@ -51,6 +51,6 @@ dependencies {
     compile 'com.github.PhilJay:MPAndroidChart:v3.0.1'
     compile 'com.github.medyo:fancybuttons:1.8.3'
     compile 'com.codemybrainsout.onboarding:onboarder:1.0.3'
-    compile 'jp.wasabeef:recyclerview-animators:2.2.3'
+    compile 'jp.wasabeef:recyclerview-animators:2.2.6'
     testCompile 'junit:junit:4.12'
 }

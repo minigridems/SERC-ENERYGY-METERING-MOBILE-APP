@@ -153,34 +153,18 @@ public class MainActivityRecyclerView extends AppCompatActivity {
         adapter = new RecyclerViewAdapter(this, recordingStationsForAdapter);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_main_activity);
         recyclerView.setAdapter(adapter);
+        // Attach layout manager to the RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        // Set the animation from wasabeef's recycler-animator library
         recyclerView.setItemAnimator(new SlideInUpAnimator());
 
 
 
-
         /*
-         * OnItemClickLister for each item in the ListView. When an item in the listview is clicked,
+         * OnItemClickLister for each item in the RecylerView. When an item in the RecylerView is clicked,
          * this sends an intent to open GraphActivity (while passing some information about the
          * object to GraphActivity within the intent)
          */
-        /*listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // Intent to open GraphActivity
-                Intent graphIntent = new Intent(MainActivityRecyclerView.this, GraphTabbed.class);
-
-                // Getting the station ID, name and tag of the Clicked item to be sent with the intent
-                graphIntent.putExtra("Station_ID", adapter.getItem(position).getStationID());
-                graphIntent.putExtra("Station_name", adapter.getItem(position).getStationName());
-                graphIntent.putExtra("Station_tag", adapter.getItem(position).getStationTag());
-
-                // Start GraphActivity
-                startActivity(graphIntent);
-
-            }
-        });*/
-
         adapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position) {
