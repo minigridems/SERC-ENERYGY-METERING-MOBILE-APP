@@ -19,7 +19,7 @@ import java.net.URL;
  * we need to run it in its own Thread and a common way to do this is with AsyncTask.
  */
 
-public class CmsApiCall extends AsyncTask<String, Void, String> {
+public class EmonCmsApiCall extends AsyncTask<String, Void, String> {
 
     private Context mContext;
     private ProgressDialog dialog;
@@ -30,18 +30,27 @@ public class CmsApiCall extends AsyncTask<String, Void, String> {
         void processFinish(String output) throws JSONException;
     }
 
-    public CmsApiCall(Context context ,AsyncResponse delegate){
+    public EmonCmsApiCall(Context context ,AsyncResponse delegate){
         this.delegate = delegate;
         mContext = context;
     }
 
-    public CmsApiCall(Context context) {
+    public EmonCmsApiCall(Context context) {
         mContext = context;
 
     }
 
     @Override
     protected void onPreExecute() {
+        dialog = new ProgressDialog(mContext);
+        super.onPreExecute();
+        Log.i("SERC Log:", "Starting onPreExecute");
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.setMessage("Loading. Please wait...");
+        dialog.setIndeterminate(true);
+        dialog.setCanceledOnTouchOutside(false);
+        Log.i("SERC Log:", "Showing ProgressBar");
+        dialog.show();
 
     }
 
@@ -97,6 +106,11 @@ public class CmsApiCall extends AsyncTask<String, Void, String> {
             delegate.processFinish(s);
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+
+        Log.i("SERC Log", "Loading Dialog onPostExecute exists: " + String.valueOf(dialog.isShowing()));
+        if(dialog.isShowing()) {
+            dialog.dismiss();
         }
 
     }

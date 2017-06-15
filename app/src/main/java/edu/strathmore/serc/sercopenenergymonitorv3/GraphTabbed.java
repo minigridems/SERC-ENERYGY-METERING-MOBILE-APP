@@ -2,12 +2,10 @@ package edu.strathmore.serc.sercopenenergymonitorv3;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -42,10 +40,6 @@ import com.github.mikephil.charting.data.LineDataSet;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -214,6 +208,222 @@ public class GraphTabbed extends AppCompatActivity {
     }
 
 
+    // Method for drawing the graph. Requires the HTTP link to the JSON file
+    private void drawGraph(String graphLink){
+
+        // Graph Drawn in onPostExecute to avoid out of sync data
+        new EmonCmsApiCall(GraphTabbed.this, new EmonCmsApiCall.AsyncResponse() {
+            @Override
+            public void processFinish(String output) throws JSONException {
+
+                // Get app settings
+                SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(GraphTabbed.this);
+                // First update the link
+                interval = appSettings.getString("pref_interval", "900"); //get latest interval setting
+                setLink();
+
+                // Gets the amount of time before Graph is zeroed from settings
+                float minutesInactivity = Float.valueOf(appSettings.getString("graph_zero_listpref", "-1"));
+
+                /* For this call, the JSON consists of one large parent JSON Array with multiple children
+                 * arrays each containing 2 data points. The time at position 0 and the power reading at
+                 * position 1 in the child arrays.
+                 */
+                result = output;
+                Log.i("SERC Log", "Result in JSON: " + result);
+                JSONArray parentJSON = new JSONArray(result);
+                JSONArray childJSONArray;
+
+
+                // Array list of entry objects needed that will be used by the LineDataSet object
+                List<Entry> entries = new ArrayList<>();
+                // Array list for the values of x (timestamp) and y (power values) coordinates of the graph
+                ArrayList<Long> xAxis = new ArrayList<>();
+                ArrayList<Double> yAxis = new ArrayList<>();
+
+                /**
+                 * This cycles through each JSON array in the main array and adds the element in the first
+                 * position (the timestamp in milliseconds) to xAxis array list and the second element in
+                 * the array (the power reading ) to the yAxis array list. These 2 ArrayLists are then used
+                 * to create an ArrayList of Entry objects stored in the variable entries (i.e. each Entry
+                 * object contains the xAxis and yAxis values from one JSON array)
+                 */
+                // First checks if any data is being sent (i.e. it is not an empty array)
+
+                if(!parentJSON.isNull(0)) {
+                    Log.i("SERC Log", "Not null array: Response from API Call not null");
+                    for (int i = 0; i < parentJSON.length(); i++) {
+                        childJSONArray = parentJSON.getJSONArray(i);
+
+                        for (int j = 0; j < childJSONArray.length(); j++) {
+                            // Check if value is null and adds 0 if so to avoid NullException error
+                            if (childJSONArray.get(1) == null) {
+                                yAxis.add(0d);
+
+                            } else {
+
+                                xAxis.add(childJSONArray.getLong(0));
+                                yAxis.add(childJSONArray.getDouble(1));
+
+                            }
+                        }
+                    }
+
+                    Log.i("SERC Log", "Adding to entries: Changing the elements of the array into Entry objects");
+                    /**
+                     * This is used to add the x and y axis values to as Entry objects to an ArrayList.
+                     * It also 'zeros' the graph by adding 0 as y axis reading just before and after the
+                     * the 2 x axis values the are further apart than the threshold value
+                     */
+                    Float threshold = minutesInactivity * 60000f; //Converts minutes to milliseconds
+                    long previousX = Long.valueOf(startTime);
+                    Long absTimeDiff;
+                    Long zeroOffset = 1000l;
+                    if (threshold > 0f) {
+                        // Since the xAxis and yAxis ArrayList are the same length either xAxis.size() or yAxis.size()
+                        // could have been used
+                        for (int i = 0; i < xAxis.size(); i++) {
+                            Long currentX = xAxis.get(i);
+                            absTimeDiff = Math.abs(currentX - previousX);
+
+
+                            if(absTimeDiff>threshold){
+
+                                entries.add(new Entry((float) (previousX+zeroOffset), 0f));
+                                entries.add(new Entry((float) (currentX-zeroOffset), 0f));
+                                entries.add(new Entry((float) xAxis.get(i), yAxis.get(i).floatValue()));
+
+                            } else{
+                                entries.add(new Entry((float) xAxis.get(i), yAxis.get(i).floatValue()));
+                            }
+
+
+                            previousX = currentX;
+                        }
+                    } else{
+                        for (int i = 0; i < xAxis.size(); i++) {
+                            entries.add(new Entry((float) xAxis.get(i), yAxis.get(i).floatValue()));
+                        }
+                    }
+
+
+
+
+                    // The following steps are done to prepare for the new data on the graph
+                    lineChart.clear();
+                    lineChart.invalidate(); //refresh the data
+                    lineChart.fitScreen();  // set the zoom level back to the default
+
+                    // Gets the preference for whether or not the grid will be drawn
+                    boolean toDrawGrid = appSettings.getBoolean("graph_draw_grid_pref", true);
+                    // For the X Axis grid
+                    lineChart.getXAxis().setDrawGridLines(toDrawGrid);
+                    // For both sets of the Y axis
+                    lineChart.getAxisLeft().setDrawGridLines(toDrawGrid);
+                    lineChart.getAxisRight().setDrawGridLines(toDrawGrid);
+
+                    // Gets the x axis
+                    XAxis styledXAxis = lineChart.getXAxis();
+                    // Sets the x axis labels to appear in the according to settings
+                    int xAxisLabelPosition = Integer.valueOf(appSettings.getString("graph_x_axis_position_listpref","1"));
+                    switch (xAxisLabelPosition){
+                        case 1:
+                            styledXAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+                            break;
+                        case 2:
+                            styledXAxis.setPosition(XAxis.XAxisPosition.TOP);
+                            break;
+                        case 3:
+                            styledXAxis.setPosition(XAxis.XAxisPosition.BOTH_SIDED);
+                            break;
+
+                    }
+
+
+                    // Sets the rotation angle of the x axis labels
+                    String xAxisAngle = appSettings.getString("graph_x_axis_angle_listpref", "45");
+                    styledXAxis.setLabelRotationAngle(Float.valueOf(xAxisAngle));
+
+                    // Removing right Y Axis labels
+                    YAxis rightYAxis = lineChart.getAxisRight();
+                    // Get from settings
+                    boolean allowRightYAxisLabel = appSettings.getBoolean("graph_y_axis_both_sides", false);
+                    rightYAxis.setDrawLabels(allowRightYAxisLabel);
+
+                /* DataSet objects hold data which belongs together, and allow individual styling
+                 * of that data. For example, below the color of the line set to RED (by default) and
+                 * the drawing of individual circles for each data point is turned off.
+                 */
+                    Log.i("SERC Log", "Configuring the Data Set");
+                    LineDataSet dataSet = new LineDataSet(entries, "Power");
+
+                    // Getting the color of the line and setting it
+                    int graphColor = Integer.valueOf(appSettings.getString("graph_line_color_listpref", "1"));
+                    switch (graphColor){
+                        case 1:
+                            dataSet.setColor(Color.RED);
+                            break;
+                        case 2:
+                            dataSet.setColor(Color.CYAN);
+                            break;
+                        case 3:
+                            dataSet.setColor(Color.BLACK);
+                            break;
+                        case 4:
+                            dataSet.setColor(Color.BLUE);
+                            break;
+                        case 5:
+                            dataSet.setColor(Color.GREEN);
+                            break;
+                        case 6:
+                            dataSet.setColor(Color.MAGENTA);
+                            break;
+                        case 7:
+                            dataSet.setColor(Color.YELLOW);
+                            break;
+
+                    }
+
+                    // Removes circles at every data point
+                    dataSet.setDrawCircles(false);
+
+                /* As a last step, one needs to add the LineDataSet object (or objects) that were created
+                 * to a LineData object. This object holds all data that is represented by a Chart
+                 * instance and allows further styling.
+                 */
+                    LineData lineData = new LineData(dataSet);
+
+                    /**
+                     * This sets the styling of the x axis according to how it has been defined in the
+                     * DayAxisValueFormatter class. In this instance, the UNIX timestamp is converted to
+                     * human readable time in the DayAxisValueFormatter class
+                     */
+                    styledXAxis.setValueFormatter(new DayAxisValueFormatter(lineChart));
+
+                    // Sets the size and position of the graph's legend
+                    Legend legend = lineChart.getLegend();
+                    legend.setXEntrySpace(5f);
+                    legend.setFormSize(5f);
+                    legend.setPosition(Legend.LegendPosition.RIGHT_OF_CHART_INSIDE);
+
+                    // Helps to clear the extra whitespace in the graph
+                    lineChart.getDescription().setText("");
+
+                    // Sets the LineData object to the LineChart object lineChart that is part of the view
+                    lineChart.setData(lineData);
+                    lineChart.notifyDataSetChanged();
+
+                }
+                lineChart.invalidate(); //refresh
+
+
+
+            }
+        }).execute(graphLink);
+
+    }
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -370,7 +580,6 @@ public class GraphTabbed extends AppCompatActivity {
             View graphOnlyView = inflater.inflate(R.layout.graph_only,container, false);
             // Set the global varible to the graph as the fragment is created
             ((GraphTabbed)getActivity()).lineChart = (LineChart) graphOnlyView.findViewById(R.id.graph_full_page);
-            ((GraphTabbed)getActivity()).drawGraph(((GraphTabbed)getActivity()).link);
             // Return the View
             return graphOnlyView;
         }
@@ -607,287 +816,7 @@ public class GraphTabbed extends AppCompatActivity {
 
     }
 
-    // Method for drawing the graph. Requires the HTTP link to the JSON file
-    private void drawGraph(String graphLink){
-        // Get app settings
-        SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
-        // First update the link
-        interval = appSettings.getString("pref_interval", "900"); //get latest interval setting
-        setLink();
-
-        // Gets the amount of time before Graph is zeroed from settings
-        float minutesInactivity = Float.valueOf(appSettings.getString("graph_zero_listpref", "-1"));
-
-
-        try {
-
-            // CmsApiCall returns the JSON in form of a continuous string
-            AsyncTask localCmiCall = new CmsApi().execute(graphLink);
 
 
 
-            /* For this call, the JSON consists of one large parent JSON Array with multiple children
-             * arrays each containing 2 data points. The time at position 0 and the power reading at
-             * position 1 in the child arrays.
-             */
-            Log.i("SERC Log", "Result in JSON: " + result);
-            JSONArray parentJSON = new JSONArray(result);
-            JSONArray childJSONArray;
-
-            // Array list of entry objects needed that will be used by the LineDataSet object
-            List<Entry> entries = new ArrayList<>();
-            // Array list for the values of x (timestamp) and y (power values) coordinates of the graph
-            ArrayList<Long> xAxis = new ArrayList<>();
-            ArrayList<Double> yAxis = new ArrayList<>();
-
-            /**
-             * This cycles through each JSON array in the main array and adds the element in the first
-             * position (the timestamp in milliseconds) to xAxis array list and the second element in
-             * the array (the power reading ) to the yAxis array list. These 2 ArrayLists are then used
-             * to create an ArrayList of Entry objects stored in the variable entries (i.e. each Entry
-             * object contains the xAxis and yAxis values from one JSON array)
-             */
-            // First checks if any data is being sent (i.e. it is not an empty array)
-
-            if(!parentJSON.isNull(0)) {
-                Log.i("SERC Log", "Not null array: Response from API Call not null");
-                for (int i = 0; i < parentJSON.length(); i++) {
-                    childJSONArray = parentJSON.getJSONArray(i);
-
-                    for (int j = 0; j < childJSONArray.length(); j++) {
-                        // Check if value is null and adds 0 if so to avoid NullException error
-                        if (childJSONArray.get(1) == null) {
-                            yAxis.add(0d);
-
-                        } else {
-
-                            xAxis.add(childJSONArray.getLong(0));
-                            yAxis.add(childJSONArray.getDouble(1));
-
-                        }
-                    }
-                }
-
-                Log.i("SERC Log", "Adding to entries: Changing the elements of the array into Entry objects");
-                /**
-                 * This is used to add the x and y axis values to as Entry objects to an ArrayList.
-                 * It also 'zeros' the graph by adding 0 as y axis reading just before and after the
-                 * the 2 x axis values the are further apart than the threshold value
-                 */
-                Float threshold = minutesInactivity * 60000f; //Converts minutes to milliseconds
-                long previousX = Long.valueOf(startTime);
-                Long absTimeDiff;
-                Long zeroOffset = 1000l;
-                if (threshold > 0f) {
-                    // Since the xAxis and yAxis ArrayList are the same length either xAxis.size() or yAxis.size()
-                    // could have been used
-                    for (int i = 0; i < xAxis.size(); i++) {
-                        Long currentX = xAxis.get(i);
-                        absTimeDiff = Math.abs(currentX - previousX);
-
-
-                        if(absTimeDiff>threshold){
-
-                            entries.add(new Entry((float) (previousX+zeroOffset), 0f));
-                            entries.add(new Entry((float) (currentX-zeroOffset), 0f));
-                            entries.add(new Entry((float) xAxis.get(i), yAxis.get(i).floatValue()));
-
-                        } else{
-                            entries.add(new Entry((float) xAxis.get(i), yAxis.get(i).floatValue()));
-                        }
-
-
-                        previousX = currentX;
-                    }
-                } else{
-                    for (int i = 0; i < xAxis.size(); i++) {
-                        entries.add(new Entry((float) xAxis.get(i), yAxis.get(i).floatValue()));
-                    }
-                }
-
-
-
-
-                // The following steps are done to prepare for the new data on the graph
-                lineChart.clear();
-                lineChart.invalidate(); //refresh the data
-                lineChart.fitScreen();  // set the zoom level back to the default
-
-                // Gets the preference for whether or not the grid will be drawn
-                boolean toDrawGrid = appSettings.getBoolean("graph_draw_grid_pref", true);
-                // For the X Axis grid
-                lineChart.getXAxis().setDrawGridLines(toDrawGrid);
-                // For both sets of the Y axis
-                lineChart.getAxisLeft().setDrawGridLines(toDrawGrid);
-                lineChart.getAxisRight().setDrawGridLines(toDrawGrid);
-
-                // Gets the x axis
-                XAxis styledXAxis = lineChart.getXAxis();
-                // Sets the x axis labels to appear in the according to settings
-                int xAxisLabelPosition = Integer.valueOf(appSettings.getString("graph_x_axis_position_listpref","1"));
-                switch (xAxisLabelPosition){
-                    case 1:
-                        styledXAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-                        break;
-                    case 2:
-                        styledXAxis.setPosition(XAxis.XAxisPosition.TOP);
-                        break;
-                    case 3:
-                        styledXAxis.setPosition(XAxis.XAxisPosition.BOTH_SIDED);
-                        break;
-
-                }
-
-
-                // Sets the rotation angle of the x axis labels
-                String xAxisAngle = appSettings.getString("graph_x_axis_angle_listpref", "45");
-                styledXAxis.setLabelRotationAngle(Float.valueOf(xAxisAngle));
-
-                // Removing right Y Axis labels
-                YAxis rightYAxis = lineChart.getAxisRight();
-                // Get from settings
-                boolean allowRightYAxisLabel = appSettings.getBoolean("graph_y_axis_both_sides", false);
-                rightYAxis.setDrawLabels(allowRightYAxisLabel);
-
-                /* DataSet objects hold data which belongs together, and allow individual styling
-                 * of that data. For example, below the color of the line set to RED (by default) and
-                 * the drawing of individual circles for each data point is turned off.
-                 */
-                Log.i("SERC Log", "Configuring the Data Set");
-                LineDataSet dataSet = new LineDataSet(entries, "Power");
-
-                // Getting the color of the line and setting it
-                int graphColor = Integer.valueOf(appSettings.getString("graph_line_color_listpref", "1"));
-                switch (graphColor){
-                    case 1:
-                        dataSet.setColor(Color.RED);
-                        break;
-                    case 2:
-                        dataSet.setColor(Color.CYAN);
-                        break;
-                    case 3:
-                        dataSet.setColor(Color.BLACK);
-                        break;
-                    case 4:
-                        dataSet.setColor(Color.BLUE);
-                        break;
-                    case 5:
-                        dataSet.setColor(Color.GREEN);
-                        break;
-                    case 6:
-                        dataSet.setColor(Color.MAGENTA);
-                        break;
-                    case 7:
-                        dataSet.setColor(Color.YELLOW);
-                        break;
-
-                }
-
-                // Removes circles at every data point
-                dataSet.setDrawCircles(false);
-
-                /* As a last step, one needs to add the LineDataSet object (or objects) that were created
-                 * to a LineData object. This object holds all data that is represented by a Chart
-                 * instance and allows further styling.
-                 */
-                LineData lineData = new LineData(dataSet);
-
-                /**
-                 * This sets the styling of the x axis according to how it has been defined in the
-                 * DayAxisValueFormatter class. In this instance, the UNIX timestamp is converted to
-                 * human readable time in the DayAxisValueFormatter class
-                 */
-                styledXAxis.setValueFormatter(new DayAxisValueFormatter(lineChart));
-
-                // Sets the size and position of the graph's legend
-                Legend legend = lineChart.getLegend();
-                legend.setXEntrySpace(5f);
-                legend.setFormSize(5f);
-                legend.setPosition(Legend.LegendPosition.RIGHT_OF_CHART_INSIDE);
-
-                // Helps to clear the extra whitespace in the graph
-                lineChart.getDescription().setText("");
-
-                // Sets the LineData object to the LineChart object lineChart that is part of the view
-                lineChart.setData(lineData);
-                lineChart.notifyDataSetChanged();
-
-            }
-            lineChart.invalidate(); //refresh
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    // AsyncTask class that modifies the global variable result
-    private class CmsApi extends AsyncTask<String, Void, String> {
-
-
-        private ProgressDialog dialog;
-
-
-        @Override
-        protected void onPreExecute() {
-            dialog = new ProgressDialog(GraphTabbed.this);
-            super.onPreExecute();
-            Log.i("SERC Log:", "Starting onPreExecute");
-            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            dialog.setMessage("Loading. Please wait...");
-            dialog.setIndeterminate(true);
-            dialog.setCanceledOnTouchOutside(false);
-            Log.i("SERC Log:", "Showing ProgressBar");
-            dialog.show();
-        }
-
-
-        @Override
-        protected String doInBackground(String... params) {
-            //result = "";
-            try {
-                String urlstring = params[0];
-                Log.i("SERC Log:", "HTTP Connecting: " + urlstring);
-
-                // Recommended way of making http requests is HttpURLConnection
-                URL url = new URL(urlstring);
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-
-                try {
-                    InputStream reader = new BufferedInputStream(urlConnection.getInputStream());
-                    Log.i("SERC Log:", "Starting to read text");
-                    String text = "";
-                    int i = 0;
-                    while ((i = reader.read()) != -1) {
-                        text += (char) i;
-                    }
-                    Log.i("SERC Log:", "HTTP Response: " + text);
-                    result = text;
-
-                } catch (Exception e) {
-                    Log.i("SERC Log:", "HTTP Exception: " + e);
-                } finally {
-                    Log.i("SERC Log:", "HTTP Disconnecting");
-                    urlConnection.disconnect();
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.i("SERC Log:", "HTTP Exception: " + e);
-            }
-            Log.i("Result from CMSApi", result);
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            Log.i("SERC Log", "Loading Dialog onPostExecute exists: " + String.valueOf(dialog.isShowing()));
-            if(dialog.isShowing()) {
-                dialog.dismiss();
-            }
-        }
-
-    }
 }

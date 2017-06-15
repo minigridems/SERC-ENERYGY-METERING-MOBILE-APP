@@ -28,9 +28,14 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     /************ Creating OnItemClickListener ************/
     // Listener member variable
     private OnItemClickListener listener;
+    private OnItemLongClickListener longClickListener;
 
     public interface OnItemClickListener{
         void onItemClick (View itemView, int position);
+    }
+
+    public interface OnItemLongClickListener{
+        void onItemLongClick (View itemView, int position);
     }
 
     // Method that allows the parent Activity/fragment to define the listener
@@ -38,8 +43,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         listener = clickListener;
     }
 
-    public void setOnItemLongClickListener (OnItemClickListener clickListener){
-        listener = clickListener;
+    public void setOnItemLongClickListener (OnItemLongClickListener clickListener){
+        longClickListener = clickListener;
     }
 
 
@@ -75,11 +80,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if(listener != null){
+                    if(longClickListener != null){
                         int position = getAdapterPosition();
                         // Make sure position exists in RecyclerView
                         if (position != RecyclerView.NO_POSITION){
-                            listener.onItemClick(itemView, position);
+                            longClickListener.onItemLongClick(itemView, position);
                         }
                     }
                      /* This returns a boolean to indicate whether you have consumed the event and it

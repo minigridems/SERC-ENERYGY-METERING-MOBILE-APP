@@ -289,8 +289,12 @@ public class MainActivity extends AppCompatActivity {
             apiKey = appSettings.getString("api_key_edit", "");
             // Call CmsApiCall using the MainActivity as the context. The result is the JSON file in
             // form of a continuous String.
-            result = new CmsApiCall(MainActivity.this).execute(rootLinkAddress+"feed/list.json&apikey="+apiKey).get();
-
+            result = new CmsApiCall(MainActivity.this, new CmsApiCall.AsyncResponse() {
+                @Override
+                public void processFinish(String output) {
+                    //resultFromEmonCms = output;
+                }
+            }).execute(rootLinkAddress+"feed/list.json&apikey="+apiKey).get();
             // This changes the JSON String into a JSON object. The response for this call consists of
             // one JSON array with individual objects for each node added to the Emon CMS platform
             JSONArray parentJSON = new JSONArray(result);

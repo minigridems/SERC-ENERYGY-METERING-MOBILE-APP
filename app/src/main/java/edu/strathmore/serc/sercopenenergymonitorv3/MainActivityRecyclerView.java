@@ -35,7 +35,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 
@@ -53,22 +52,25 @@ public class MainActivityRecyclerView extends AppCompatActivity {
     // Needs to be global as it is used both in the onCreate and refresh method
     private RecyclerViewAdapter adapter;
 
+    // Result from EmonCms
+    private String resultFromEmonCms = "";
+
+    // Checks if the activity is launching
+    private boolean firstTimeLaunch = true;
+
 
 
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Log start of onCreate method
-        Log.i("SERC Log", "OnCreate");
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_recycler_view);
 
-
+        // Set up toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         // Gets the API key from settings (Shared Preferences)
         SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
@@ -85,7 +87,6 @@ public class MainActivityRecyclerView extends AppCompatActivity {
         if (rootLinkAddress != null) {
             rootLinkAddress = fixLink(rootLinkAddress);
         }
-
 
 
         /*
@@ -126,95 +127,10 @@ public class MainActivityRecyclerView extends AppCompatActivity {
         }
 
 
-        // Create an ArrayList of RecordingStation Objects with the variable name recordingStations
-        //Full Array list from the CMS platform
-        Log.i("SERC Log:", "Calling CMSApi");
-        ArrayList<RecordingStation> recordingStations = getRecordingStationsList();
-
-        // Sublist of recording stations as chosen in settings
-        ArrayList<RecordingStation> recordingStationsForAdapter = getRecordingStationInSettings(recordingStations);
-
-        // Arranges the Stations alphabetically by tag name
-        if (recordingStationsForAdapter.size()>1){
-            Collections.sort(recordingStationsForAdapter, new Comparator<RecordingStation>() {
-                @Override
-                public int compare(RecordingStation o1, RecordingStation o2) {
-                    return o1.getStationTag().compareTo(o2.getStationTag());
-                }
-            });
-        }
+        // Set up the locations in the main screen
+        setUpLocationsForMainScreen();
 
 
-
-        // Binding the adapter to the RecyclerView
-        adapter = new RecyclerViewAdapter(this, recordingStationsForAdapter);
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_main_activity);
-        recyclerView.setAdapter(adapter);
-        // Attach layout manager to the RecyclerView
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        // Set the animation from wasabeef's recycler-animator library
-        recyclerView.setItemAnimator(new SlideInUpAnimator());
-
-
-
-        /*
-         * OnItemClickLister for each item in the RecylerView. When an item in the RecylerView is clicked,
-         * this sends an intent to open GraphActivity (while passing some information about the
-         * object to GraphActivity within the intent)
-         */
-        adapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View itemView, int position) {
-                Intent graphIntent = new Intent(MainActivityRecyclerView.this, GraphTabbed.class);
-
-                // Getting the station ID, name and tag of the Clicked item to be sent with the intent
-                graphIntent.putExtra("Station_ID", adapter.getRecordingStation(position).getStationID());
-                graphIntent.putExtra("Station_name", adapter.getRecordingStation(position).getStationName());
-                graphIntent.putExtra("Station_tag", adapter.getRecordingStation(position).getStationTag());
-
-                // Start GraphActivity
-                startActivity(graphIntent);
-            }
-        });
-
-
-
-        /**
-         * This is the listener for when a user long clicks/presses on an item in the listview.
-         * This opens a Dialog showing all the information stored for the that RecordingStation object
-         */
-        adapter.setOnItemLongClickListener(new RecyclerViewAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View itemView, int position) {
-                AlertDialog.Builder  alertDialogBuilder = new AlertDialog.Builder(MainActivityRecyclerView.this);
-                alertDialogBuilder.setTitle("Station Details");
-                alertDialogBuilder.setIcon(R.mipmap.ic_launcher_serc);
-                alertDialogBuilder.setPositiveButton("Ok", null);
-
-                Date currentTime = new Date(adapter.getRecordingStation(position).getStationTime()*1000);
-                SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy h:mm a");
-                String stationTime = sdf.format(currentTime);
-                CharSequence[] stationDetails = {
-                        "Station ID: " + String.valueOf(adapter.getRecordingStation(position).getStationID()),
-                        "Station Name: " + adapter.getRecordingStation(position).getStationName(),
-                        "Station Tag: " + adapter.getRecordingStation(position).getStationTag(),
-                        "Current Reading: " + String.valueOf(adapter.getRecordingStation(position).getStationValueReading()),
-                        "Current Time: " + stationTime};
-
-                alertDialogBuilder.setItems(stationDetails, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (which == 1){
-                            Toast.makeText(getBaseContext(), "The ID sent from the EmonCMS platform for this particular station", Toast.LENGTH_SHORT).show();
-                        }
-
-                    }
-                });
-
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
-            }
-        });
 
         // onClick Listener for Swiping up to refresh feed. Calls the refreshContent method
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_layout);
@@ -266,166 +182,12 @@ public class MainActivityRecyclerView extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    // Method that calls CmsApiCall class and returns an ArrayList of Recording Station objects
-    private ArrayList<RecordingStation> getRecordingStationsList(){
-
-        // Create an ArrayList of RecordingStation Objects with the variable name recordingStations
-        ArrayList<RecordingStation> recordingStations = new ArrayList<>();
-
-        String result;
-        try {
-            // Get Root/API key from settings
-            SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
-            rootLinkAddress = appSettings.getString("root_link_editpref","");
-            // Make sure link is not malformed
-            rootLinkAddress = fixLink(rootLinkAddress);
-
-            apiKey = appSettings.getString("api_key_edit", "");
-            // Call CmsApiCall using the MainActivity as the context. The result is the JSON file in
-            // form of a continuous String.
-            result = new CmsApiCall(MainActivityRecyclerView.this).execute(rootLinkAddress+"feed/list.json&apikey="+apiKey).get();
-
-            // This changes the JSON String into a JSON object. The response for this call consists of
-            // one JSON array with individual objects for each node added to the Emon CMS platform
-            JSONArray parentJSON = new JSONArray(result);
-            JSONObject childJSON;
-
-
-            // Cycles through all objects within the JSON array
-            for (int i=0; i<parentJSON.length(); i++){
-
-                // Initialising the variables needed for the RecordingStation constructor
-                int id =0;
-                String name="";
-                String tag="";
-                int time=0;
-                int powerReading=0;
-
-                // Setting childJSON as an object in the JSON array at position i
-                childJSON = parentJSON.getJSONObject(i);
-
-                //Checks if ID field exists and is not null
-                if (childJSON.has("id") && !childJSON.isNull("id")){
-                    id = childJSON.getInt("id");
-                }
-                //Checks if name field exists and is not null
-                if (childJSON.has("name") && !childJSON.isNull("name")){
-                    name = childJSON.getString("name");
-                }
-                //Checks if tag field exists and is not null
-                if (childJSON.has("tag") && !childJSON.isNull("tag")){
-                    tag = childJSON.getString("tag");
-                }
-                //Checks if time field exists and is not null
-                if (childJSON.has("time") && !childJSON.isNull("time")){
-                    time = childJSON.getInt("time");
-                }
-                //Checks if value field exists and is not null
-                if (childJSON.has("value") && !childJSON.isNull("value")){
-                    powerReading = childJSON.getInt("value");
-                }
-
-                //Creating new RecordingStation object with the values and adding it to the ArrayList for each loop
-                RecordingStation recordingStation = new RecordingStation(id, name, tag, time, powerReading);
-                recordingStations.add(recordingStation);
-
-            }
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return recordingStations;
-    }
-
-    // Method that checks which of the stations from the full list is in settings
-    private ArrayList<RecordingStation> getRecordingStationInSettings(ArrayList<RecordingStation> recordingStations){
-        /*
-         * This function takes in an array list of the recording stations and returns an array list
-         * of recording stations which is a subset of the of the input. This subset contains all the
-         * recording stations contained within the setting preferences
-         */
-        Log.i("SERC Log", "Pulling preferences");
-        SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
-        Set<String> recordingStationsInSettings = appSettings.getStringSet("selected_station_list", Collections.<String>emptySet());
-        Set<String> chosenRecordingStations = new HashSet<>();
-
-
-        // Creates an array list of names of the stations in the form "TAG - NAME"
-        Log.i("SERC Log:", "Building List of Recording Station Names");
-        ArrayList<String> recordingStationNames = new ArrayList<>();
-        for (int i=0; i<recordingStations.size(); i++){
-            recordingStationNames.add(recordingStations.get(i).getStationTag() + " - " + recordingStations.get(i).getStationName());
-        }
-
-        // Sort List Alphabetically
-        Collections.sort(recordingStationNames, String.CASE_INSENSITIVE_ORDER);
-
-        // Adds these names to a new String Array List to chosenRecordingStations
-        Log.i("SERC Log:", "Adding the names to settings");
-        chosenRecordingStations.addAll(recordingStationNames);
-
-        Log.i("SERC Log:", "Saving new settings");
-        SharedPreferences.Editor editor = appSettings.edit();
-        editor.putStringSet("full_station_list", chosenRecordingStations);
-
-        Log.i("SERC Log", "Checking if selected_station_list in SharedPrefs is empty: " + String.valueOf(recordingStations.isEmpty()));
-        if (recordingStationsInSettings.isEmpty()) {
-            // Adds full list in case selected list is empty e.g. on first launch
-            editor.putStringSet("selected_station_list", chosenRecordingStations);
-            editor.apply();
-        }
-
-        // Logging entries in the list
-        Log.i("SERC Log:", "selected_station_list size: "+ String.valueOf(recordingStationsInSettings.size()));
-        for (int i=0; i<recordingStationsInSettings.size(); i++){
-            Log.i("SERC Log:", "selected_station_list " + String.valueOf(i) + ": "+ String.valueOf(recordingStationsInSettings.toArray()[i]));
-        }
-
-        ArrayList<RecordingStation> recordingStationsForAdapter = new ArrayList<>();
-        for (String nameTag:recordingStationsInSettings){
-            for (int j = 0; j < recordingStations.size(); j++){
-                String currentStn = recordingStations.get(j).getStationTag() + " - " + recordingStations.get(j).getStationName();
-                Log.i("SERC Log", "currentStn: " + currentStn);
-                Log.i("SERC Log", "nameTag: " + nameTag);
-                Log.i("SERC Log", "nameTag.contains(currentStn): " + String.valueOf(nameTag.contains(currentStn)));
-
-                if (nameTag.contains(currentStn)){
-                    recordingStationsForAdapter.add(recordingStations.get(j));
-
-                }
-            }
-        }
-
-        return recordingStationsForAdapter;
-    }
 
     //Method to refresh content. Called when user swipes up to refresh
     private void refreshContent(){
-        // Full list of Stations from the platform
-        ArrayList<RecordingStation> recordingStationsList = getRecordingStationsList();
-
-        // Sublist of recording stations as chosen in settings
-        ArrayList<RecordingStation> recordingStationsForAdapter = getRecordingStationInSettings(recordingStationsList);
-
-        // Arranges the Stations alphabetically by tag name
-        if (recordingStationsForAdapter.size()>1){
-            Collections.sort(recordingStationsForAdapter, new Comparator<RecordingStation>() {
-                @Override
-                public int compare(RecordingStation o1, RecordingStation o2) {
-                    return o1.getStationTag().compareTo(o2.getStationTag());
-                }
-            });
-        }
-
-        // Clear the adapter and load up new content to adapter
-
-        adapter.clear();
-        adapter.addAll(recordingStationsForAdapter);
+        // Call the main method. Since firstTimeLaunch is set to false, the adapter will only be
+        // cleared and refreshed
+        setUpLocationsForMainScreen();
 
         swipeRefreshLayout.setRefreshing(false); //stop the refresh dialog once finished
     }
@@ -458,7 +220,6 @@ public class MainActivityRecyclerView extends AppCompatActivity {
 
         return mFixedString;
     }
-
 
     // This Fragment class defines the pop-up that shows up if an API key is not found/or provided by the user
     public static class APIKeyDialog extends DialogFragment {
@@ -620,5 +381,234 @@ public class MainActivityRecyclerView extends AppCompatActivity {
         }
     }
 
+    // Main method that sets up all the cards in the main screen
+    public void setUpLocationsForMainScreen(){
+
+        // Get Root/API key from settings
+        final SharedPreferences appSettings = PreferenceManager.getDefaultSharedPreferences(this);
+        rootLinkAddress = appSettings.getString("root_link_editpref","");
+        // Make sure link is not malformed
+        rootLinkAddress = fixLink(rootLinkAddress);
+
+        apiKey = appSettings.getString("api_key_edit", "");
+        // Call CmsApiCall using the MainActivity as the context. The result is the JSON file in
+        // form of a continuous String.
+        //result = new CmsApiCall(MainActivityRecyclerView.this).execute(rootLinkAddress+"feed/list.json&apikey="+apiKey).get();
+
+
+        // Activity Done in the onPostExecute of the Asynctask to make sure the data is not out of sync
+        new CmsApiCall(MainActivityRecyclerView.this, new CmsApiCall.AsyncResponse() {
+            @Override
+            public void processFinish(String output) throws JSONException {
+                // Create an ArrayList of RecordingStation Objects with the variable name recordingStations
+                ArrayList<RecordingStation> recordingStations = new ArrayList<>();
+
+                resultFromEmonCms = output;
+
+
+                // This changes the JSON String into a JSON object. The response for this call consists of
+                // one JSON array with individual objects for each node added to the Emon CMS platform
+                JSONArray parentJSON = new JSONArray(resultFromEmonCms);
+                JSONObject childJSON;
+
+                // Cycles through all objects within the JSON array
+                for (int i=0; i<parentJSON.length(); i++){
+
+                    // Initialising the variables needed for the RecordingStation constructor
+                    int id =0;
+                    String name="";
+                    String tag="";
+                    int time=0;
+                    int powerReading=0;
+
+                    // Setting childJSON as an object in the JSON array at position i
+                    childJSON = parentJSON.getJSONObject(i);
+
+                    //Checks if ID field exists and is not null
+                    if (childJSON.has("id") && !childJSON.isNull("id")){
+                        id = childJSON.getInt("id");
+                    }
+                    //Checks if name field exists and is not null
+                    if (childJSON.has("name") && !childJSON.isNull("name")){
+                        name = childJSON.getString("name");
+                    }
+                    //Checks if tag field exists and is not null
+                    if (childJSON.has("tag") && !childJSON.isNull("tag")){
+                        tag = childJSON.getString("tag");
+                    }
+                    //Checks if time field exists and is not null
+                    if (childJSON.has("time") && !childJSON.isNull("time")){
+                        time = childJSON.getInt("time");
+                    }
+                    //Checks if value field exists and is not null
+                    if (childJSON.has("value") && !childJSON.isNull("value")){
+                        powerReading = childJSON.getInt("value");
+                    }
+
+                    //Creating new RecordingStation object with the values and adding it to the ArrayList for each loop
+                    RecordingStation recordingStation = new RecordingStation(id, name, tag, time, powerReading);
+                    recordingStations.add(recordingStation);
+
+                }
+
+                /*
+                     * This function takes in an array list of the recording stations and returns an array list
+                     * of recording stations which is a subset of the of the input. This subset contains all the
+                     * recording stations contained within the setting preferences
+                     */
+
+                Set<String> recordingStationsInSettings = appSettings.getStringSet("selected_station_list", Collections.<String>emptySet());
+                Set<String> chosenRecordingStations = new HashSet<>();
+
+
+                // Creates an array list of names of the stations in the form "TAG - NAME"
+                Log.i("SERC Log:", "Building List of Recording Station Names");
+                ArrayList<String> recordingStationNames = new ArrayList<>();
+                for (int i=0; i<recordingStations.size(); i++){
+                    recordingStationNames.add(recordingStations.get(i).getStationTag() + " - " + recordingStations.get(i).getStationName());
+                }
+
+                // Sort List Alphabetically
+                Collections.sort(recordingStationNames, String.CASE_INSENSITIVE_ORDER);
+
+                // Adds these names to a new String Array List to chosenRecordingStations
+                Log.i("SERC Log:", "Adding the names to settings");
+                chosenRecordingStations.addAll(recordingStationNames);
+
+                Log.i("SERC Log:", "Saving new settings");
+                SharedPreferences.Editor editor = appSettings.edit();
+                editor.putStringSet("full_station_list", chosenRecordingStations);
+
+                Log.i("SERC Log", "Checking if selected_station_list in SharedPrefs is empty: " + String.valueOf(recordingStations.isEmpty()));
+                if (recordingStationsInSettings.isEmpty()) {
+                    // Adds full list in case selected list is empty e.g. on first launch
+                    editor.putStringSet("selected_station_list", chosenRecordingStations);
+                    editor.apply();
+                }
+
+                // Logging entries in the list
+                Log.i("SERC Log:", "selected_station_list size: "+ String.valueOf(recordingStationsInSettings.size()));
+                for (int i=0; i<recordingStationsInSettings.size(); i++){
+                    Log.i("SERC Log:", "selected_station_list " + String.valueOf(i) + ": "+ String.valueOf(recordingStationsInSettings.toArray()[i]));
+                }
+
+                ArrayList<RecordingStation> recordingStationsForAdapter = new ArrayList<>();
+                for (String nameTag:recordingStationsInSettings){
+                    for (int j = 0; j < recordingStations.size(); j++){
+                        String currentStn = recordingStations.get(j).getStationTag() + " - " + recordingStations.get(j).getStationName();
+                        Log.i("SERC Log", "currentStn: " + currentStn);
+                        Log.i("SERC Log", "nameTag: " + nameTag);
+                        Log.i("SERC Log", "nameTag.contains(currentStn): " + String.valueOf(nameTag.contains(currentStn)));
+
+                        if (nameTag.contains(currentStn)){
+                            recordingStationsForAdapter.add(recordingStations.get(j));
+
+                        }
+                    }
+                }
+
+
+                // Arranges the Stations alphabetically by tag name
+                if (recordingStationsForAdapter.size()>1){
+                    Collections.sort(recordingStationsForAdapter, new Comparator<RecordingStation>() {
+                        @Override
+                        public int compare(RecordingStation o1, RecordingStation o2) {
+                            return o1.getStationTag().compareTo(o2.getStationTag());
+                        }
+                    });
+                }
+
+                // Checks if the activity is being lauched or if it is a refresh
+                if (firstTimeLaunch) {
+                    // Binding the adapter to the RecyclerView
+                    adapter = new RecyclerViewAdapter(MainActivityRecyclerView.this, recordingStationsForAdapter);
+                    RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_main_activity);
+                    recyclerView.setAdapter(adapter);
+                    // Attach layout manager to the RecyclerView
+                    recyclerView.setLayoutManager(new LinearLayoutManager(MainActivityRecyclerView.this));
+                    // Set the animation from wasabeef's recycler-animator library
+                    recyclerView.setItemAnimator(new SlideInUpAnimator());
+
+
+
+
+                    /*
+                     * OnItemClickLister for each item in the RecylerView. When an item in the RecylerView is clicked,
+                     * this sends an intent to open GraphActivity (while passing some information about the
+                     * object to GraphActivity within the intent)
+                     */
+                    adapter.setOnItemClickListener(new RecyclerViewAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(View itemView, int position) {
+                            Intent graphIntent = new Intent(MainActivityRecyclerView.this, GraphTabbed.class);
+
+                            // Getting the station ID, name and tag of the Clicked item to be sent with the intent
+                            graphIntent.putExtra("Station_ID", adapter.getRecordingStation(position).getStationID());
+                            graphIntent.putExtra("Station_name", adapter.getRecordingStation(position).getStationName());
+                            graphIntent.putExtra("Station_tag", adapter.getRecordingStation(position).getStationTag());
+
+                            // Start GraphActivity
+                            startActivity(graphIntent);
+                        }
+                    });
+
+
+
+                    /**
+                     * This is the listener for when a user long clicks/presses on an item in the listview.
+                     * This opens a Dialog showing all the information stored for the that RecordingStation object
+                     */
+
+                    adapter.setOnItemLongClickListener(new RecyclerViewAdapter.OnItemLongClickListener() {
+                        @Override
+                        public void onItemLongClick(View itemView, int position) {
+                            AlertDialog.Builder  alertDialogBuilder = new AlertDialog.Builder(MainActivityRecyclerView.this);
+                            alertDialogBuilder.setTitle("Station Details");
+                            alertDialogBuilder.setIcon(R.mipmap.ic_launcher_serc);
+                            alertDialogBuilder.setPositiveButton("Ok", null);
+
+                            Date currentTime = new Date(adapter.getRecordingStation(position).getStationTime()*1000);
+                            SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy h:mm a");
+                            String stationTime = sdf.format(currentTime);
+                            CharSequence[] stationDetails = {
+                                    "Station ID: " + String.valueOf(adapter.getRecordingStation(position).getStationID()),
+                                    "Station Name: " + adapter.getRecordingStation(position).getStationName(),
+                                    "Station Tag: " + adapter.getRecordingStation(position).getStationTag(),
+                                    "Current Reading: " + String.valueOf(adapter.getRecordingStation(position).getStationValueReading()),
+                                    "Current Time: " + stationTime};
+
+                            alertDialogBuilder.setItems(stationDetails, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (which == 1){
+                                        Toast.makeText(getBaseContext(), "The ID sent from the EmonCMS platform for this particular station", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                }
+                            });
+
+                            AlertDialog alertDialog = alertDialogBuilder.create();
+                            alertDialog.show();
+                        }
+                    });
+
+
+                    // Makes sure this loop does not repeat again while activity has not closed
+                    firstTimeLaunch = false;
+
+                } else{
+
+                    // Clear the adapter and load up new content to adapter
+                    adapter.clear();
+                    adapter.addAll(recordingStationsForAdapter);
+
+                }
+
+
+            }
+        }).execute(rootLinkAddress+"feed/list.json&apikey="+apiKey);
+
+
+    }
 
 }
