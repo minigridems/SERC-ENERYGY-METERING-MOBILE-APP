@@ -1,6 +1,6 @@
-# SERC Energy Monitor Android App
+# SERC Energy Monitoring Android App
 ### Introduction
-The SERC Energy monitoring app is a companion Android app for the [Emoncms](https://emoncms.org/) platform (which is part of the [OpenEnergyMonitor](https://openenergymonitor.org/) project) for [Strathmore Energy Research Center](https://serc.strathmore.edu/). The app is partly based on [this tutorial](https://learn.openenergymonitor.org/electricity-monitoring/other-software/AndroidAppPart1) on the OpenEnergyMonitoring website. 
+The SERC Energy monitoring app is a companion Android app for the [Emoncms](https://emoncms.org/) platform (which is part of the [OpenEnergyMonitor](https://openenergymonitor.org/) project) for [Strathmore Energy Research Center (SERC)](https://serc.strathmore.edu/). The app is partly based on [this tutorial](https://learn.openenergymonitor.org/electricity-monitoring/other-software/AndroidAppPart1) on the OpenEnergyMonitoring website. 
 
 Main Screen                                   |  Graph Parameters                           |  Graph            |Settings                             
 :--------------------------------------------:|:-------------------------------------------:|:-------------------------------------------:|:-------------------------------------------:
