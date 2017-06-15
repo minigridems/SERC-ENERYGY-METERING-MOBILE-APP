@@ -6,45 +6,56 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:background="@drawable/card">
+    android:background="@drawable/card"
+    >
+
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_weight="1"
-        android:padding="16dp">
 
+        android:background="?android:attr/selectableItemBackground">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:padding="16dp">
+
+
+            <TextView
+                android:id="@+id/station_tag"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAllCaps="true"
+                android:textSize="20sp"
+                tools:text="Station Tag"/>
+
+            <TextView
+                android:id="@+id/station_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textStyle="italic"
+                tools:text="Station Name"/>
+
+
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/station_tag"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAllCaps="true"
+            android:id="@+id/station_power_reading"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingRight="16dp"
+            android:paddingLeft="8dp"
+            android:gravity="center"
             android:textSize="20sp"
-            tools:text="Station Tag"/>
-
-        <TextView
-            android:id="@+id/station_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textStyle="italic"
-            tools:text="Station Name"/>
-
+            android:textStyle="bold"
+            tools:text="109 W"/>
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/station_power_reading"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:paddingRight="16dp"
-        android:paddingLeft="8dp"
-        android:gravity="center"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        tools:text="109 W"/>
 
 
 </LinearLayout>
