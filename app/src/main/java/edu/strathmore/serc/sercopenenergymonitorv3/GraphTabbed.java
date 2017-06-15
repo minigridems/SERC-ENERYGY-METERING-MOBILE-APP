@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
@@ -84,9 +85,6 @@ public class GraphTabbed extends AppCompatActivity {
     private String stationName = "";
     private String stationTag = "";
     private String link;
-
-    // Global String variable that holds the JSON array when the user requests a time range
-    private String result = "[]";
 
 
     // Needed for calendar dialog
@@ -229,9 +227,8 @@ public class GraphTabbed extends AppCompatActivity {
                  * arrays each containing 2 data points. The time at position 0 and the power reading at
                  * position 1 in the child arrays.
                  */
-                result = output;
-                Log.i("SERC Log", "Result in JSON: " + result);
-                JSONArray parentJSON = new JSONArray(result);
+                Log.i("SERC Log", "Result in JSON: " + output);
+                JSONArray parentJSON = new JSONArray(output);
                 JSONArray childJSONArray;
 
 
@@ -416,7 +413,8 @@ public class GraphTabbed extends AppCompatActivity {
                 }
                 lineChart.invalidate(); //refresh
 
-
+                // Move tab graph automatically
+                mViewPager.setCurrentItem(1, true);
 
             }
         }).execute(graphLink);
@@ -530,23 +528,34 @@ public class GraphTabbed extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
 
-                    // Draw Graph
-                    ((GraphTabbed)getActivity()).drawGraph(((GraphTabbed)getActivity()).link);
-
-                    // Set TextView
+                    // Find each TextView
                     TextView startTimeText = (TextView) parametersView.findViewById(R.id.textview_set_start_time);
                     TextView endTimeText = (TextView) parametersView.findViewById(R.id.textview_set_end_time);
                     TextView startDateText = (TextView) parametersView.findViewById(R.id.textview_set_start_date);
                     TextView endDateText = (TextView) parametersView.findViewById(R.id.textview_set_end_date);
-
+                    // Set each TextView
+                    // Note that the months have a '+1' as they start from month 0 not month 1
                     startDateText.setText(((GraphTabbed)getActivity()).day_start + "/" +(((GraphTabbed)getActivity()).month_start+1) + "/" + ((GraphTabbed)getActivity()).year_start);
                     endDateText.setText(((GraphTabbed)getActivity()).day_end + "/" + (((GraphTabbed)getActivity()).month_end+1) + "/" +((GraphTabbed)getActivity()).year_end);
                     startTimeText.setText(((GraphTabbed)getActivity()).hour_start+":"+((GraphTabbed)getActivity()).minute_start+"hrs");
                     endTimeText.setText(((GraphTabbed)getActivity()).hour_end+":"+((GraphTabbed)getActivity()).minute_end+"hrs");
 
+                    // This is to check that the chosen start date/time does not come after the end date/time
+                    if ( (Long.parseLong( ((GraphTabbed)getActivity()).startTime)) < (Long.parseLong( ((GraphTabbed)getActivity()).endTime))) {
+                        // Clear previously drawn chart
+                        ((GraphTabbed)getActivity()).lineChart.clear();
+                        ((GraphTabbed)getActivity()).lineChart.invalidate();
+                        // Draw Graph
+                        ((GraphTabbed)getActivity()).setLink();
+                        ((GraphTabbed)getActivity()).drawGraph(((GraphTabbed)getActivity()).link);
 
-                    // Move tab graph automatically
-                    ((GraphTabbed)getActivity()).mViewPager.setCurrentItem(1, true);
+                    }
+                    else {
+                        // Show error message
+                        Toast.makeText(getContext(), "Start date/time cannot come after End date/time", Toast.LENGTH_LONG).show();
+                    }
+
+
 
                 }
             });

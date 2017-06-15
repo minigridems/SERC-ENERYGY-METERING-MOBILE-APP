@@ -182,6 +182,7 @@ public class MainActivityRecyclerView extends AppCompatActivity {
 
     //Method to refresh content. Called when user swipes up to refresh
     private void refreshContent(){
+        swipeRefreshLayout.setRefreshing(true);
         // Call the main method. Since firstTimeLaunch is set to false, the adapter will only be
         // cleared and refreshed
         setUpLocationsForMainScreen();
