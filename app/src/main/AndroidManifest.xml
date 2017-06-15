@@ -25,6 +25,12 @@
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
+            android:name=".MainActivityRecyclerView"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings"
@@ -68,10 +74,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.strathmore.serc.sercopenenergymonitorv3.MainActivity" />
         </activity>
-        <activity
-            android:name=".MainActivityRecyclerView"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+
     </application>
 
 </manifest>

@@ -59,9 +59,6 @@ public class MainActivityRecyclerView extends AppCompatActivity {
     private boolean firstTimeLaunch = true;
 
 
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 

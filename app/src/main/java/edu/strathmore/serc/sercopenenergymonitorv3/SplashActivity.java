@@ -37,7 +37,7 @@ public class SplashActivity extends AppCompatActivity {
 
 
         if (helpPageShown) {
-            Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+            Intent intent = new Intent(SplashActivity.this, MainActivityRecyclerView.class);
             startActivity(intent);
             finish();
         } else {
