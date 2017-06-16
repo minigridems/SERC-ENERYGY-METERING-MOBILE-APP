@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:text="Location ID: "
+                style="@style/PopupTextView"
+                tools:text="Location ID: "/>
+
+            <TextView
+                android:id="@+id/popup_location_id"
+                style="@style/PopupTextView"
+                tools:text="56"
+                android:layout_weight="4"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:text="Location Tag: "
+                style="@style/PopupTextView"
+                tools:text="Location Tag: "/>
+
+            <TextView
+                android:id="@+id/popup_location_tags"
+                style="@style/PopupTextView"
+                tools:text="Strathmore Cafeteria"
+                android:layout_weight="4"/>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:text="Location Name: "
+                style="@style/PopupTextView"
+                tools:text="Location Name: "/>
+
+            <TextView
+                android:id="@+id/popup_location_name"
+                style="@style/PopupTextView"
+                tools:text="Strathmore Cafeteria: R"
+                android:layout_weight="4"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:text="Last Reading: "
+                style="@style/PopupTextView"
+                tools:text="Last Reading: "/>
+
+            <TextView
+                android:id="@+id/popup_location_reading"
+                style="@style/PopupTextView"
+                tools:text="5131W"
+                android:layout_weight="4"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:text="Time of Last Reading: "
+                style="@style/PopupTextView"
+                tools:text="Time of Last Reading: "/>
+
+            <TextView
+                android:id="@+id/popup_location_time"
+                style="@style/PopupTextView"
+                tools:text="12/06/2016 1400hrs"
+                android:gravity="center_vertical"
+                android:layout_height="match_parent"
+                android:layout_weight="4"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

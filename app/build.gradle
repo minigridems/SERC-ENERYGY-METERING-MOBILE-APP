@@ -24,8 +24,8 @@ android {
         applicationId "edu.strathmore.serc.sercopenenergymonitorv3"
         minSdkVersion 15
         targetSdkVersion 21
-        versionCode 20
-        versionName "v3.0 - Beta Release"
+        versionCode 21
+        versionName "v3.1 - Beta Release"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -52,5 +52,6 @@ dependencies {
     compile 'com.github.medyo:fancybuttons:1.8.3'
     compile 'com.codemybrainsout.onboarding:onboarder:1.0.3'
     compile 'jp.wasabeef:recyclerview-animators:2.2.6'
+    compile 'com.rm:longpresspopup:1.0.1'
     testCompile 'junit:junit:4.12'
 }

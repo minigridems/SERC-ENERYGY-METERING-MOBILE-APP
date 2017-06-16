@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -22,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -37,6 +39,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
+import rm.com.longpresspopup.LongPressPopup;
+import rm.com.longpresspopup.LongPressPopupBuilder;
+import rm.com.longpresspopup.PopupInflaterListener;
 
 public class MainActivityRecyclerView extends AppCompatActivity {
 
@@ -557,7 +562,7 @@ public class MainActivityRecyclerView extends AppCompatActivity {
                      * This opens a Dialog showing all the information stored for the that RecordingStation object
                      */
 
-                    adapter.setOnItemLongClickListener(new RecyclerViewAdapter.OnItemLongClickListener() {
+                    /*adapter.setOnItemLongClickListener(new RecyclerViewAdapter.OnItemLongClickListener() {
                         @Override
                         public void onItemLongClick(View itemView, int position) {
                             AlertDialog.Builder  alertDialogBuilder = new AlertDialog.Builder(MainActivityRecyclerView.this);
@@ -573,7 +578,7 @@ public class MainActivityRecyclerView extends AppCompatActivity {
                                     "Station Name: " + adapter.getRecordingStation(position).getStationName(),
                                     "Station Tag: " + adapter.getRecordingStation(position).getStationTag(),
                                     "Current Reading: " + String.valueOf(adapter.getRecordingStation(position).getStationValueReading()),
-                                    "Current Time: " + stationTime};
+                                    "Time of current reading: " + stationTime};
 
                             alertDialogBuilder.setItems(stationDetails, new DialogInterface.OnClickListener() {
                                 @Override
@@ -587,6 +592,50 @@ public class MainActivityRecyclerView extends AppCompatActivity {
 
                             AlertDialog alertDialog = alertDialogBuilder.create();
                             alertDialog.show();
+
+
+
+
+                        }
+                    });*/
+
+                    adapter.setOnItemLongClickListener(new RecyclerViewAdapter.OnItemLongClickListener() {
+                        @Override
+                        public void onItemLongClick(View itemView, final int position) {
+
+                            final int currentPosition = position;
+
+                            Date currentTime = new Date(adapter.getRecordingStation(position).getStationTime()*1000);
+                            SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy h:mm a");
+                            final String stationTime = sdf.format(currentTime);
+
+                            LongPressPopup popup = new LongPressPopupBuilder(MainActivityRecyclerView.this)// A Context object for the builder constructor
+                                    .setTarget(itemView)
+                                    .setPopupView(R.layout.popup_layout, new PopupInflaterListener() {
+                                        @Override
+                                        public void onViewInflated(@Nullable String popupTag, View root) {
+                                            TextView popup_ID = (TextView) root.findViewById(R.id.popup_location_id);
+                                            TextView popup_Tag = (TextView) root.findViewById(R.id.popup_location_tags);
+                                            TextView popup_Name = (TextView) root.findViewById(R.id.popup_location_name);
+                                            TextView popup_reading = (TextView) root.findViewById(R.id.popup_location_reading);
+                                            TextView popup_time = (TextView) root.findViewById(R.id.popup_location_time);
+
+                                            popup_ID.setText( String.valueOf(adapter.getRecordingStation(currentPosition).getStationID()));
+                                            popup_Name.setText( adapter.getRecordingStation(currentPosition).getStationName());
+                                            popup_Tag.setText(adapter.getRecordingStation(currentPosition).getStationTag());
+                                            popup_reading.setText(String.valueOf(adapter.getRecordingStation(currentPosition).getStationValueReading())+ "W");
+                                            popup_time.setText(stationTime);
+
+                                        }
+                                    })// The View to show when long pressed
+                                    .setCancelTouchOnDragOutsideView(true)
+                                    .build();// This will give you a LongPressPopup object
+
+                            // You can also chain it to the .build() method call above without declaring
+                            // the "popup" variable before
+                            // From this moment, the touch events are registered and, if long pressed,
+                            // will show the given view inside the popup, call unregister() to stop
+                            popup.register();
                         }
                     });
 
@@ -608,5 +657,7 @@ public class MainActivityRecyclerView extends AppCompatActivity {
 
 
     }
+
+
 
 }
